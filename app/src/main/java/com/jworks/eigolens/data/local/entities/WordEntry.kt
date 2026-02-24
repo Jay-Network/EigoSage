@@ -2,9 +2,18 @@ package com.jworks.eigolens.data.local.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "words")
+@Entity(
+    tableName = "words",
+    indices = [
+        Index(value = ["word"], unique = true, name = "idx_words_word"),
+        Index(value = ["lemma"], name = "idx_words_lemma"),
+        Index(value = ["frequency"], name = "idx_words_frequency")
+    ]
+)
 data class WordEntry(
     @PrimaryKey
     @ColumnInfo(name = "word_id")
@@ -16,13 +25,25 @@ data class WordEntry(
     @ColumnInfo(name = "lemma")
     val lemma: String,
 
-    @ColumnInfo(name = "frequency")
-    val frequency: Int = 999999
+    @ColumnInfo(name = "frequency", defaultValue = "999999")
+    val frequency: Int? = 999999
 )
 
-@Entity(tableName = "definitions")
+@Entity(
+    tableName = "definitions",
+    indices = [
+        Index(value = ["word_id"], name = "idx_definitions_word_id")
+    ],
+    foreignKeys = [
+        ForeignKey(
+            entity = WordEntry::class,
+            parentColumns = ["word_id"],
+            childColumns = ["word_id"]
+        )
+    ]
+)
 data class DefinitionEntry(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "def_id")
     val defId: Int,
 

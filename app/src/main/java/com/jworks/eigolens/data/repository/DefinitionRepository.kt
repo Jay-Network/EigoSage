@@ -112,7 +112,7 @@ private fun WordWithDefinitions.toDomain(): Definition {
     return Definition(
         word = word.word,
         lemma = word.lemma,
-        frequency = word.frequency.takeIf { it != 999999 },
+        frequency = word.frequency?.takeIf { it != 999999 },
         meanings = definitions.map { def ->
             Meaning(
                 partOfSpeech = PartOfSpeech.fromString(def.pos),
