@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
@@ -65,6 +66,11 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.SuggestionChipDefaults
+import com.jworks.eigolens.data.ai.ContextualInsight
 import com.jworks.eigolens.domain.models.Definition
 import com.jworks.eigolens.domain.models.Meaning
 import com.jworks.eigolens.domain.models.PartOfSpeech
@@ -75,7 +81,8 @@ import kotlinx.coroutines.launch
 fun DefinitionPanel(
     definition: Definition,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contextualInsight: ContextualInsight? = null
 ) {
     val slideOffset = remember { Animatable(40f) }
     val alpha = remember { Animatable(0f) }
@@ -103,6 +110,7 @@ fun DefinitionPanel(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .offset(y = slideOffset.value.dp)
                 .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 72.dp)
                 .alpha(alpha.value)
         ) {
@@ -115,6 +123,17 @@ fun DefinitionPanel(
             )
 
             Spacer(modifier = Modifier.height(10.dp))
+
+            // Context-aware AI insight (appears when AI responds)
+            AnimatedVisibility(
+                visible = contextualInsight != null,
+                enter = expandVertically(spring(stiffness = Spring.StiffnessMediumLow)) + fadeIn()
+            ) {
+                contextualInsight?.let { insight ->
+                    ContextInsightCard(insight = insight)
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+            }
 
             // Animated POS tag row
             POSTagRow(meanings = definition.meanings)
@@ -146,15 +165,15 @@ private fun WordHeader(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = word,
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1565C0)
+                color = MaterialTheme.colorScheme.onSurface
             )
             if (lemma != word) {
                 Text(
                     text = "base: $lemma",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 2.dp)
                 )
             }
@@ -170,7 +189,7 @@ private fun WordHeader(
                 Icon(
                     Icons.Default.Close,
                     contentDescription = "Close",
-                    tint = Color.Gray,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -180,17 +199,17 @@ private fun WordHeader(
 
 @Composable
 private fun FrequencyBadge(frequency: Int) {
-    val (label, gradient) = when {
-        frequency <= 100 -> "Top 100" to listOf(Color(0xFF4CAF50), Color(0xFF81C784))
-        frequency <= 1000 -> "Common" to listOf(Color(0xFF2196F3), Color(0xFF64B5F6))
-        frequency <= 5000 -> "Moderate" to listOf(Color(0xFFFFA000), Color(0xFFFFCA28))
-        else -> "Rare" to listOf(Color(0xFFFF5722), Color(0xFFFF8A65))
+    val (label, color) = when {
+        frequency <= 100 -> "Top 100" to MaterialTheme.colorScheme.primary
+        frequency <= 1000 -> "Common" to MaterialTheme.colorScheme.secondary
+        frequency <= 5000 -> "Moderate" to MaterialTheme.colorScheme.onSurfaceVariant
+        else -> "Rare" to MaterialTheme.colorScheme.outline
     }
 
     Box(
         modifier = Modifier
             .background(
-                brush = Brush.horizontalGradient(gradient),
+                color = color.copy(alpha = 0.1f),
                 shape = RoundedCornerShape(12.dp)
             )
             .padding(horizontal = 10.dp, vertical = 4.dp)
@@ -198,7 +217,7 @@ private fun FrequencyBadge(frequency: Int) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = Color.White,
+            color = color,
             fontWeight = FontWeight.Bold,
             fontSize = 10.sp
         )
@@ -237,26 +256,27 @@ private fun POSTagRow(meanings: List<Meaning>) {
 
 @Composable
 private fun POSTag(pos: PartOfSpeech) {
-    val (color, label) = when (pos) {
-        PartOfSpeech.NOUN -> Color(0xFF2196F3) to "noun"
-        PartOfSpeech.VERB -> Color(0xFF4CAF50) to "verb"
-        PartOfSpeech.ADJECTIVE -> Color(0xFFFFA000) to "adj"
-        PartOfSpeech.ADVERB -> Color(0xFFFF5722) to "adv"
-        PartOfSpeech.PREPOSITION -> Color(0xFF9C27B0) to "prep"
-        PartOfSpeech.CONJUNCTION -> Color(0xFF795548) to "conj"
-        PartOfSpeech.INTERJECTION -> Color(0xFFE91E63) to "intj"
-        PartOfSpeech.UNKNOWN -> Color(0xFF9E9E9E) to "other"
+    val label = when (pos) {
+        PartOfSpeech.NOUN -> "noun"
+        PartOfSpeech.VERB -> "verb"
+        PartOfSpeech.ADJECTIVE -> "adj"
+        PartOfSpeech.ADVERB -> "adv"
+        PartOfSpeech.PREPOSITION -> "prep"
+        PartOfSpeech.CONJUNCTION -> "conj"
+        PartOfSpeech.INTERJECTION -> "intj"
+        PartOfSpeech.UNKNOWN -> "other"
     }
+    val tagColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     Box(
         modifier = Modifier
             .background(
-                color = color.copy(alpha = 0.12f),
+                color = tagColor.copy(alpha = 0.08f),
                 shape = RoundedCornerShape(8.dp)
             )
             .border(
                 width = 1.dp,
-                color = color.copy(alpha = 0.5f),
+                color = tagColor.copy(alpha = 0.2f),
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(horizontal = 12.dp, vertical = 5.dp)
@@ -264,7 +284,7 @@ private fun POSTag(pos: PartOfSpeech) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium,
-            color = color,
+            color = tagColor,
             fontWeight = FontWeight.Medium
         )
     }
@@ -295,13 +315,7 @@ private fun DefinitionCard(
     expanded: Boolean,
     onToggle: () -> Unit
 ) {
-    val (posColor, _) = when (meaning.partOfSpeech) {
-        PartOfSpeech.NOUN -> Color(0xFF2196F3) to "noun"
-        PartOfSpeech.VERB -> Color(0xFF4CAF50) to "verb"
-        PartOfSpeech.ADJECTIVE -> Color(0xFFFFA000) to "adj"
-        PartOfSpeech.ADVERB -> Color(0xFFFF5722) to "adv"
-        else -> Color(0xFF9E9E9E) to ""
-    }
+    val posColor = MaterialTheme.colorScheme.primary
 
     Card(
         modifier = Modifier
@@ -374,39 +388,131 @@ private fun DefinitionCard(
                     // Synonyms
                     if (meaning.synonyms.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(8.dp))
-                        Row {
-                            Text(
-                                text = "syn ",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFF4CAF50),
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = meaning.synonyms.take(5).joinToString(", "),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color(0xFF4CAF50).copy(alpha = 0.8f)
-                            )
-                        }
+                        LexicalChipGroup(
+                            label = "Synonyms",
+                            words = meaning.synonyms,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
                     }
 
                     // Antonyms
                     if (meaning.antonyms.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row {
-                            Text(
-                                text = "ant ",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFFF44336),
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = meaning.antonyms.take(5).joinToString(", "),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color(0xFFF44336).copy(alpha = 0.8f)
-                            )
-                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        LexicalChipGroup(
+                            label = "Antonyms",
+                            words = meaning.antonyms,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
                     }
                 }
+            }
+        }
+    }
+}
+
+// -- Lexical Chip Group --
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun LexicalChipGroup(
+    label: String,
+    words: List<String>,
+    color: androidx.compose.ui.graphics.Color
+) {
+    if (words.isEmpty()) return
+
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = color,
+            fontWeight = FontWeight.SemiBold
+        )
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            words.take(8).forEach { word ->
+                SuggestionChip(
+                    onClick = {},
+                    label = {
+                        Text(
+                            text = word,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    },
+                    colors = SuggestionChipDefaults.suggestionChipColors(
+                        containerColor = color.copy(alpha = 0.12f),
+                        labelColor = color
+                    ),
+                    border = SuggestionChipDefaults.suggestionChipBorder(
+                        enabled = true,
+                        borderColor = color.copy(alpha = 0.35f)
+                    )
+                )
+            }
+        }
+    }
+}
+
+// -- Context Insight Card --
+
+@Composable
+private fun ContextInsightCard(insight: ContextualInsight) {
+    val accentColor = MaterialTheme.colorScheme.tertiary
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 4.dp)
+            ) {
+                Text(
+                    text = "In this context",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                    fontWeight = FontWeight.Bold
+                )
+                if (insight.partOfSpeech.isNotBlank()) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                accentColor.copy(alpha = 0.1f),
+                                RoundedCornerShape(6.dp)
+                            )
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = insight.partOfSpeech,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            fontSize = 10.sp
+                        )
+                    }
+                }
+            }
+
+            Text(
+                text = insight.meaning,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            insight.note?.let { note ->
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = note,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontStyle = FontStyle.Italic,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -438,7 +544,7 @@ fun DefinitionSkeleton(modifier: Modifier = Modifier) {
                 .width(180.dp)
                 .height(32.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color.Gray.copy(alpha = shimmerAlpha))
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = shimmerAlpha))
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -451,7 +557,7 @@ fun DefinitionSkeleton(modifier: Modifier = Modifier) {
                         .width(56.dp)
                         .height(26.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(Color.Gray.copy(alpha = shimmerAlpha))
+                        .background(MaterialTheme.colorScheme.outline.copy(alpha = shimmerAlpha))
                 )
             }
         }
@@ -465,7 +571,7 @@ fun DefinitionSkeleton(modifier: Modifier = Modifier) {
                     .fillMaxWidth()
                     .height(64.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color.Gray.copy(alpha = shimmerAlpha))
+                    .background(MaterialTheme.colorScheme.outline.copy(alpha = shimmerAlpha))
             )
             Spacer(modifier = Modifier.height(10.dp))
         }

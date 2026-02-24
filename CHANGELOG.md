@@ -2,7 +2,64 @@
 
 All notable changes to EigoLens will be documented in this file.
 
-## [0.2.0] - 2026-02-24
+## [0.3.1] - 2026-02-24 (Phase B+ - UI Polish & Interaction Modes)
+
+### Added
+- **Long-press sentence analysis**: Long-press any word → AI analyzes the containing sentence (meaning, grammar, vocabulary, tone)
+- **Full-text AI FAB**: Small star FAB in bottom-left triggers AI analysis of all captured text
+- **ScopeLevel.Sentence**: New scope level with dedicated prompt template
+- **Segmented provider selector**: Settings screen has segmented button row to choose preferred AI provider
+- **Card-based key editors**: Settings API keys in cards with explicit Save/Clear buttons and saved status
+- **Full M3 color scheme**: Light/dark theme with indigo primary, teal secondary, amber tertiary
+- **Custom typography**: EigoTypography with consistent scale across all panels
+- **Synonym/antonym chips**: FlowRow of SuggestionChips replacing plain text rows in DefinitionPanel
+- **Sectioned AI panel**: AiAnalysisPanel with sticky header, scrollable section cards, and footer chips
+- **Slide-in animation**: DefinitionPanel slide offset now applied (was animated but unused)
+
+### Changed
+- All hardcoded colors replaced with MaterialTheme.colorScheme tokens (dark mode ready)
+- AiAnalysisPanel: flat column → header/LazyColumn/footer architecture
+- DefinitionPanel: headlineMedium → headlineSmall for word header
+- Settings: "Tap to save" links → explicit Save/Clear buttons in card layout
+- Panel backgrounds use `surface.copy(alpha = 0.97f)` instead of hardcoded `#F8F9FA`
+- Scope badges: each scope level gets its own M3 color (primary/secondary/tertiary)
+- **OCR overlay readability**: Top gradient scrim (72dp), darker word-count chip (0.7 alpha), labelMedium text
+- **Labeled FABs**: Icon-only SmallFABs → ExtendedFloatingActionButton with "AI Analyze" / "Reading Level" labels
+- **Back button**: Larger 40dp circle with black scrim background for discoverability
+- **Feedback modal**: 20dp padding, wider chip spacing, 48dp CTA button, HorizontalDivider before history section
+
+## [0.3.0] - 2026-02-24 (Phase B - AI Integration)
+
+### Added
+- **AI phrase analysis**: Circle 2-8 words → AI-powered phrase explanation (meaning, grammar, vocabulary, usage)
+- **AI paragraph analysis**: Circle 9+ words → AI summary, key ideas, vocabulary, tone analysis
+- **Full-text analysis**: `analyzeFullText()` method for complete snapshot AI analysis
+- **Claude provider**: Anthropic API integration (Haiku 4.5, 1024 token max) via Ktor HTTP client
+- **Gemini provider**: Google Gemini API integration (2.0 Flash, temperature 0.3)
+- **AiProviderManager**: Provider registry with automatic fallback (Claude → Gemini)
+- **AiPrompts**: ESL-optimized prompt templates per scope level (Word, Phrase, Paragraph, FullText)
+- **SecureKeyStore**: Encrypted API key storage via Android Keystore + EncryptedSharedPreferences
+- **AiAnalysisPanel**: AI response overlay with scope badges, markdown rendering, timing/token footer
+- **AiLoadingPanel**: Loading spinner with selected text preview and scope badge
+- **SimpleMarkdownText**: Basic markdown renderer (bold, bullets, headings)
+- **GeminiOcrCorrector**: Background Gemini Vision pass to fix ML Kit OCR text errors
+- **OcrTextMerger**: Smart word alignment merging Gemini Vision corrections with ML Kit bounding boxes
+- **Contextual word insights**: Parallel Gemini-powered meaning/POS/note for tapped words
+- **Settings: AI section**: API key inputs for Claude and Gemini with encrypted storage
+- **Settings: Provider status**: Active provider display and available providers list
+- **AiModule**: Hilt DI module for AI providers, HTTP client, SecureKeyStore
+- **security-crypto dependency**: `androidx.security:security-crypto:1.1.0-alpha06`
+
+### Changed
+- **Scope routing**: 1 word → local WordNet, 2-8 words → AI phrase, 9+ → AI paragraph
+- **CaptureFlowViewModel**: Injected AiProviderManager, added AI loading/analysis panel states
+- **PanelState**: Added `AiLoading` and `AiAnalysis` states
+- **AnnotationMode**: Routes new AI panel states to AiAnalysisPanel/AiLoadingPanel
+- **SettingsViewModel**: Exposes API key management, provider state, dynamic provider registration
+- **Settings screen**: Scrollable, AI section with key inputs, version bumped to 0.2.0
+- **ProcessCameraFrameUseCase**: Background Gemini OCR correction after capture
+
+## [0.2.0] - 2026-02-24 (Phase A - Tap-to-Define)
 
 ### Added
 - **Tap-to-define**: Tap any word on captured text for instant definitions (replaces lasso-only)

@@ -23,9 +23,24 @@ class ProcessCameraFrameUseCase @Inject constructor(
     suspend fun processStaticImage(bitmap: Bitmap): OCRResult {
         val inputImage = InputImage.fromBitmap(bitmap, 0)
         val imageSize = Size(bitmap.width, bitmap.height)
-        return execute(inputImage, imageSize)
+        return executeStatic(inputImage, imageSize)
     }
 
+    /** For static captures — no timeout, wait for full result */
+    private suspend fun executeStatic(inputImage: InputImage, imageSize: Size): OCRResult {
+        val startTime = System.currentTimeMillis()
+
+        val visionText = try {
+            textRecognizer.process(inputImage).await()
+        } catch (e: Exception) {
+            Log.e(TAG, "ML Kit processing failed", e)
+            return OCRResult(emptyList(), System.currentTimeMillis(), imageSize, 0L)
+        }
+
+        return buildResult(visionText, imageSize, startTime)
+    }
+
+    /** For real-time camera frames — short timeout, OK to drop frames */
     suspend fun execute(inputImage: InputImage, imageSize: Size): OCRResult {
         val startTime = System.currentTimeMillis()
 
@@ -33,17 +48,22 @@ class ProcessCameraFrameUseCase @Inject constructor(
             textRecognizer.process(inputImage).await()
         } ?: return OCRResult(emptyList(), System.currentTimeMillis(), imageSize, 500L)
 
+        return buildResult(visionText, imageSize, startTime)
+    }
+
+    private fun buildResult(
+        visionText: com.google.mlkit.vision.text.Text,
+        imageSize: Size,
+        startTime: Long
+    ): OCRResult {
         val detectedTexts = visionText.textBlocks.flatMap { block ->
             block.lines.mapNotNull { line ->
                 val lineText = line.text.trim()
                 if (lineText.isEmpty()) return@mapNotNull null
 
-                // Extract word-level elements from the line
                 val elements = line.elements.mapNotNull { element ->
                     val word = element.text.trim()
-                    // Skip very short non-word tokens (single punctuation, etc.)
                     if (word.length < MIN_WORD_LENGTH) return@mapNotNull null
-                    // Keep words that contain at least one letter
                     if (!word.any { it.isLetter() }) return@mapNotNull null
 
                     TextElement(

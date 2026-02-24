@@ -11,6 +11,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,11 +20,16 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -34,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
@@ -47,6 +54,7 @@ import com.jworks.eigolens.ui.camera.DefinitionPanel
 import com.jworks.eigolens.ui.camera.DefinitionSkeleton
 import com.jworks.eigolens.ui.camera.ReadabilityPanel
 import kotlin.math.roundToInt
+import com.jworks.eigolens.domain.ai.AiResponse
 
 @Composable
 fun AnnotationMode(
@@ -58,6 +66,7 @@ fun AnnotationMode(
     val panelState by viewModel.panelState.collectAsState()
     val interactionMode by viewModel.interactionMode.collectAsState()
     val tappedWord by viewModel.tappedWord.collectAsState()
+    val isCorrectingOcr by viewModel.isCorrectingOcr.collectAsState()
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
@@ -71,43 +80,72 @@ fun AnnotationMode(
             onInteractionModeChange = { viewModel.setInteractionMode(it) },
             onWordsSelected = { words -> viewModel.selectWords(words) },
             onWordTapped = { tapResult -> viewModel.onWordTapped(tapResult) },
+            onWordLongPressed = { tapResult -> viewModel.analyzeSentenceForWord(tapResult) },
             tappedWord = tappedWord,
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black)
         )
 
-        // Back button
+        // Back button with scrim circle for visibility
         IconButton(
             onClick = onBack,
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(8.dp)
+                .size(40.dp)
+                .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(20.dp))
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_arrow_back),
                 contentDescription = "Back to camera",
-                tint = Color.White
+                tint = Color.White,
+                modifier = Modifier.size(22.dp)
             )
         }
 
-        // Word count badge
+        // Top scrim gradient for readability over camera content
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .height(72.dp)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(Color.Black.copy(alpha = 0.6f), Color.Transparent)
+                    )
+                )
+        )
+
+        // Word count badge + OCR correction status
         val wordCount = capturedImage.ocrResult.texts.sumOf { it.elements.size }
-        Text(
-            text = "$wordCount words detected",
-            color = Color.White.copy(alpha = 0.8f),
-            style = MaterialTheme.typography.labelSmall,
+        Row(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(12.dp)
-                .background(Color.Black.copy(alpha = 0.5f), MaterialTheme.shapes.small)
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-        )
+                .background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(16.dp))
+                .padding(horizontal = 10.dp, vertical = 5.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (isCorrectingOcr) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(12.dp),
+                    strokeWidth = 1.5.dp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+            }
+            Text(
+                text = if (isCorrectingOcr) "$wordCount words · enhancing..."
+                       else "$wordCount words detected",
+                color = Color.White,
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
 
-        // Readability FAB (visible when panel is not showing readability)
-        if (!showPanel || panelState !is PanelState.ReadabilityResult) {
-            FloatingActionButton(
-                onClick = { viewModel.analyzeReadability() },
+        // Analysis FABs column (bottom-start, shifts up when panel open)
+        if (!showPanel || (panelState !is PanelState.ReadabilityResult && panelState !is PanelState.AiAnalysis)) {
+            Column(
                 modifier = Modifier
                     .align(if (isLandscape) Alignment.CenterEnd else Alignment.BottomStart)
                     .padding(16.dp)
@@ -115,12 +153,36 @@ fun AnnotationMode(
                         if (showPanel && !isLandscape) Modifier.padding(bottom = 280.dp)
                         else Modifier
                     ),
-                containerColor = Color(0xFF2196F3),
-                contentColor = Color.White
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_read),
-                    contentDescription = "Readability analysis"
+                // Full Text AI analysis
+                ExtendedFloatingActionButton(
+                    onClick = { viewModel.analyzeFullText() },
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    icon = {
+                        Icon(
+                            Icons.Default.Star,
+                            contentDescription = null
+                        )
+                    },
+                    text = { Text("AI Analyze") }
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Readability analysis
+                ExtendedFloatingActionButton(
+                    onClick = { viewModel.analyzeReadability() },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_read),
+                            contentDescription = null
+                        )
+                    },
+                    text = { Text("Reading Level") }
                 )
             }
         }
@@ -177,7 +239,7 @@ private fun PortraitPanel(
                     .fillMaxWidth()
                     .height(with(density) { panelHeightPx.toDp() })
                     .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-                    .background(Color(0xFFF8F9FA).copy(alpha = 0.97f))
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f))
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     // Drag handle
@@ -236,7 +298,7 @@ private fun LandscapePanel(
                     .fillMaxHeight()
                     .width(with(density) { panelWidthPx.toDp() })
                     .clip(RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp))
-                    .background(Color(0xFFF8F9FA).copy(alpha = 0.97f))
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f))
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     // Drag handle (horizontal in landscape)
@@ -280,7 +342,7 @@ private fun DragHandle(onDrag: (Float) -> Unit) {
                 .width(40.dp)
                 .height(4.dp)
                 .clip(RoundedCornerShape(2.dp))
-                .background(Color.Gray.copy(alpha = 0.4f))
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
         )
     }
 }
@@ -297,7 +359,8 @@ private fun PanelContent(
                 DefinitionPanel(
                     definition = state.definition,
                     onDismiss = onDismiss,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    contextualInsight = state.contextualInsight
                 )
             }
             is PanelState.Loading -> {
@@ -307,6 +370,22 @@ private fun PanelContent(
                 ReadabilityPanel(
                     metrics = state.metrics,
                     onBack = onDismiss,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            is PanelState.AiLoading -> {
+                AiLoadingPanel(
+                    selectedText = state.selectedText,
+                    scopeLevel = state.scopeLevel,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            is PanelState.AiAnalysis -> {
+                AiAnalysisPanel(
+                    selectedText = state.selectedText,
+                    scopeLevel = state.scopeLevel,
+                    response = state.response,
+                    onDismiss = onDismiss,
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -350,12 +429,12 @@ private fun InstructionsPanel(
                 modifier = Modifier
                     .size(48.dp)
                     .padding(bottom = 16.dp),
-                tint = if (isError) Color(0xFFE57373) else Color(0xFF90A4AE)
+                tint = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline
             )
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (isError) Color(0xFFE57373) else Color(0xFF78909C),
+                color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
         }

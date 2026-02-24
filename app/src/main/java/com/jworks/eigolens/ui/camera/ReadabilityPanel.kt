@@ -209,11 +209,11 @@ private fun StatRow(label: String, value: String) {
 }
 
 private fun difficultyColor(level: DifficultyLevel): Color = when (level) {
-    DifficultyLevel.VERY_EASY -> Color(0xFF4CAF50)
-    DifficultyLevel.EASY -> Color(0xFF8BC34A)
-    DifficultyLevel.MODERATE -> Color(0xFFFF9800)
-    DifficultyLevel.DIFFICULT -> Color(0xFFF44336)
-    DifficultyLevel.VERY_DIFFICULT -> Color(0xFF9C27B0)
+    DifficultyLevel.VERY_EASY -> Color(0xFF1A73E8)
+    DifficultyLevel.EASY -> Color(0xFF4285F4)
+    DifficultyLevel.MODERATE -> Color(0xFF5F6368)
+    DifficultyLevel.DIFFICULT -> Color(0xFF80868B)
+    DifficultyLevel.VERY_DIFFICULT -> Color(0xFFADB0B5)
 }
 
 private fun readingEaseLabel(score: Double): String = when {

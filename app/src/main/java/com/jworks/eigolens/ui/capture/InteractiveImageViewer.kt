@@ -49,6 +49,7 @@ fun InteractiveImageViewer(
     onInteractionModeChange: (InteractionMode) -> Unit,
     onWordsSelected: (List<String>) -> Unit,
     onWordTapped: (TapResult) -> Unit,
+    onWordLongPressed: (TapResult) -> Unit = {},
     tappedWord: TapResult?,
     modifier: Modifier = Modifier
 ) {
@@ -108,18 +109,30 @@ fun InteractiveImageViewer(
                 .then(
                     when (interactionMode) {
                         InteractionMode.TAP -> {
-                            // Single-finger tap to find words
+                            // Tap = word lookup, long-press = sentence analysis
                             Modifier.pointerInput(Unit) {
-                                detectTapGestures { tapOffset ->
-                                    val result = findTappedWord(
-                                        tapOffset, ocrResult, bitmap,
-                                        scale, offset, containerSize
-                                    )
-                                    if (result != null) {
-                                        selectedWordBounds = emptyList()
-                                        onWordTapped(result)
+                                detectTapGestures(
+                                    onTap = { tapOffset ->
+                                        val result = findTappedWord(
+                                            tapOffset, ocrResult, bitmap,
+                                            scale, offset, containerSize
+                                        )
+                                        if (result != null) {
+                                            selectedWordBounds = emptyList()
+                                            onWordTapped(result)
+                                        }
+                                    },
+                                    onLongPress = { tapOffset ->
+                                        val result = findTappedWord(
+                                            tapOffset, ocrResult, bitmap,
+                                            scale, offset, containerSize
+                                        )
+                                        if (result != null) {
+                                            selectedWordBounds = emptyList()
+                                            onWordLongPressed(result)
+                                        }
                                     }
-                                }
+                                )
                             }
                         }
                         InteractionMode.CIRCLE -> {

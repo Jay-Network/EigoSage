@@ -38,6 +38,10 @@ android {
             "\"${localProperties.getProperty("AUTH_SUPABASE_ANON_KEY", "")}\"")
         buildConfigField("String", "GCP_WEB_CLIENT_ID",
             "\"${localProperties.getProperty("GCP_WEB_CLIENT_ID", "")}\"")
+        buildConfigField("String", "GEMINI_API_KEY",
+            "\"${localProperties.getProperty("GEMINI_API_KEY", "")}\"")
+        buildConfigField("String", "CLAUDE_API_KEY",
+            "\"${localProperties.getProperty("CLAUDE_API_KEY", "")}\"")
     }
 
     signingConfigs {
@@ -141,6 +145,9 @@ dependencies {
 
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.1.2")
+
+    // Encrypted SharedPreferences (for API key storage)
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")

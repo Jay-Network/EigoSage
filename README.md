@@ -8,12 +8,16 @@ Point your camera at any English text, capture it, then tap any word for instant
 
 - **Tap-to-define**: Tap any word on a captured snapshot for instant offline definitions
 - **Circle selection**: Switch to circle mode to lasso multiple words or phrases
+- **AI phrase/paragraph analysis**: Circle 2+ words for AI-powered explanations (Claude or Gemini)
+- **Scope-aware routing**: 1 word → local WordNet, 2-8 words → AI phrase analysis, 9+ → AI paragraph analysis
 - **Offline dictionary**: 147,000+ words, 207,000+ definitions powered by WordNet
 - **Smart lemmatization**: Inflected forms ("running", "went", "mice") resolve to base words
 - **Readability analysis**: Flesch-Kincaid, Flesch Reading Ease, SMOG, Coleman-Liau scores
 - **NLP pipeline**: Parts of speech, named entities, word frequency
+- **Gemini OCR correction**: Background Gemini Vision pass to fix ML Kit OCR errors
 - **Overlay panel**: Draggable results panel over full-screen image - resize by dragging
 - **Two-finger zoom/pan**: Works alongside tap/circle without mode switching
+- **Encrypted API key storage**: Android Keystore-backed encrypted SharedPreferences
 - **Gallery import**: Analyze photos from your gallery
 - **Guest mode**: Core features work without an account
 
@@ -27,6 +31,9 @@ Point your camera at any English text, capture it, then tap any word for instant
 | OCR | Google ML Kit (Text Recognition) |
 | Dictionary | WordNet (bundled SQLite, offline) |
 | NLP | Rule-based lemmatizer, POS tagger, NER |
+| AI Providers | Claude (Haiku 4.5), Gemini (2.5 Flash) |
+| AI Client | Ktor (Android engine) |
+| Key Storage | EncryptedSharedPreferences (security-crypto) |
 | Database | Room |
 | DI | Hilt |
 | Auth | Supabase (optional) |
@@ -37,24 +44,26 @@ Point your camera at any English text, capture it, then tap any word for instant
 ```
 app/src/main/java/com/jworks/eigolens/
 ├── data/
+│   ├── ai/             # AI providers (Claude, Gemini), prompts, OCR correction
 │   ├── auth/           # Supabase auth repository
 │   ├── local/          # Room DB, WordNet DAO, entities
-│   ├── preferences/    # DataStore settings
+│   ├── preferences/    # DataStore settings, SecureKeyStore (encrypted API keys)
 │   └── repository/     # Definition repository (cache → WordNet → cloud)
-├── di/                 # Hilt modules
+├── di/                 # Hilt modules (AppModule, AiModule)
 ├── domain/
+│   ├── ai/             # AiProvider interface, AiResponse, AnalysisContext
 │   ├── analysis/       # Readability calculator
 │   ├── auth/           # Auth interfaces
-│   ├── models/         # OCRResult, Definition, DetectedText, etc.
+│   ├── models/         # OCRResult, Definition, DetectedText, ScopeLevel, etc.
 │   ├── nlp/            # POS tagger, NER, lemmatizer
 │   └── usecases/       # ProcessCameraFrame
 └── ui/
     ├── auth/           # Login screen
     ├── camera/         # DefinitionPanel, ReadabilityPanel
-    ├── capture/        # CaptureFlow, AnnotationMode, InteractiveImageViewer
+    ├── capture/        # CaptureFlow, AnnotationMode, AiAnalysisPanel
     ├── feedback/       # In-app feedback
     ├── gallery/        # Gallery import
-    ├── settings/       # Settings screen
+    ├── settings/       # Settings screen (API key management)
     └── theme/          # Material3 theme
 ```
 
@@ -64,8 +73,10 @@ EigoLens uses a **snapshot-first** approach:
 
 1. **Capture**: Take a photo or import from gallery. ML Kit OCR detects all text.
 2. **Tap** (default): Single-tap any word → definition panel slides up. Two-finger zoom/pan works simultaneously.
-3. **Circle** (toggle): Switch to circle mode via FAB → draw around words → lookup. Auto-returns to tap mode.
-4. **Analyze**: Readability FAB provides full-text reading level analysis.
+3. **Long-press**: Long-press any word → AI analyzes the containing sentence (grammar, meaning, vocabulary).
+4. **Circle** (toggle): Switch to circle mode via FAB → draw around words → AI phrase/paragraph analysis. Auto-returns to tap mode.
+5. **Full Text AI**: Star FAB triggers AI analysis of the entire captured text.
+6. **Readability**: Book FAB provides reading level scores (Flesch-Kincaid, SMOG, etc.).
 
 The results panel overlays the image (draggable height) so the snapshot stays full-screen.
 
@@ -99,9 +110,10 @@ RELEASE_KEY_PASSWORD=...
 ## Roadmap
 
 - **Phase A** (done): Tap-to-define, overlay panel, zoom/pan coexistence
-- **Phase B** (next): AI-powered phrase/sentence analysis (Claude/Gemini integration)
-- **Phase C**: Full-text AI analysis, scope mode bar
-- **Phase D**: Reading context system - persistent history, bookmarks, cross-session AI context
+- **Phase B** (done): AI-powered phrase/sentence analysis (Claude + Gemini), encrypted key storage, scope routing, Gemini OCR correction
+- **Phase B+** (done): UI polish, M3 theming, long-press sentence analysis, full-text AI FAB, labeled FABs, overlay readability, provider selection UX
+- **Phase C** (next): Reading context system, study mode integration
+- **Phase D**: Persistent history, bookmarks, cross-session AI context, VocabQuest integration
 
 ## License
 

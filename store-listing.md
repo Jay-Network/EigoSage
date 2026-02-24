@@ -4,9 +4,9 @@
 EigoLens
 
 ## Short Description (80 characters max)
-Tap any English word for instant definitions. Offline dictionary + reading level.
+Tap words for definitions. Circle phrases for AI analysis. Offline + AI powered.
 
-(79 characters)
+(80 characters)
 
 ## Full Description (4000 characters max)
 
@@ -17,8 +17,8 @@ CORE FEATURES
 Tap Any Word for Instant Definitions
 Capture text with your camera, then simply tap any word to look it up. No menus, no typing - just tap. EigoLens includes a comprehensive offline dictionary with over 147,000 words and 207,000 definitions powered by WordNet. Works without internet.
 
-Circle Phrases for Multi-Word Lookup
-Need to look up a phrase? Switch to circle mode and draw around multiple words. EigoLens will look up the phrase or fall back to individual word definitions. After selection, you're automatically back in tap mode.
+Circle Phrases for AI-Powered Analysis
+Need to understand a phrase or sentence? Switch to circle mode and draw around multiple words. EigoLens uses AI (powered by Gemini or Claude) to explain meaning, grammar, vocabulary, and usage in context. Circle 2-8 words for phrase analysis, or 9+ words for paragraph-level summaries with key ideas and tone analysis. After selection, you're automatically back in tap mode.
 
 Full-Screen Image with Overlay Panel
 Your captured text stays full-screen while the definition panel slides up from the bottom. Drag the panel to resize it. Pinch to zoom and pan the image with two fingers - even while in tap mode.
@@ -54,13 +54,17 @@ WHO IS EIGOLENS FOR?
 - Anyone encountering unfamiliar English words in daily life
 - Parents helping children with English reading
 
+AI-Enhanced OCR
+EigoLens can use Gemini Vision to double-check and correct OCR results in the background, improving accuracy on handwritten or difficult text. Your API key stays encrypted on your device.
+
 KEY HIGHLIGHTS
 
 - Works offline: Dictionary and NLP features work without internet
+- AI-powered: Optional AI analysis for phrases and paragraphs (bring your own API key)
 - Fast: OCR processing in under 200ms, word lookup in under 30ms
-- Privacy-focused: Text analysis happens entirely on your device
+- Privacy-focused: API keys stored encrypted on-device, no data shared with third parties
 - Natural interaction: Tap words, pinch to zoom, drag to resize - no learning curve
-- Free to use: Core features available without an account
+- Free to use: Core features available without an account, AI features with free Gemini API key
 
 EigoLens is developed by JWorks as part of our language learning toolkit.
 
@@ -174,12 +178,17 @@ Recommended 8 phone screenshots showing:
 | FCM token | Future | No | Push notifications |
 
 ### Data NOT Collected
-- Camera images (processed on-device only, never transmitted)
-- OCR text results (stays on-device)
+- Camera images (processed on-device only, never transmitted except optional Gemini Vision OCR)
 - Dictionary lookup history (in-memory cache only, cleared on app close)
 - Location data
 - Contacts
 - Files (beyond user-selected gallery photos)
+
+### AI Provider Data
+- When AI analysis is enabled, selected text is sent to Claude (Anthropic) or Gemini (Google) APIs
+- API keys are stored encrypted on-device using Android Keystore
+- No API keys or text are sent to JWorks servers
+- AI features are opt-in (require user to enter their own API key)
 
 ### Detailed Answers for Play Console Form
 
@@ -201,19 +210,26 @@ Dictionary lookups: Yes - LRU cache in memory, cleared on app close.
 
 ---
 
-## Release Notes (v0.2.0 - Phase A)
+## Release Notes (v0.3.0 - Phase B: AI Integration)
 
 ### What's New
-Major interaction upgrade: tap any word for instant definitions!
+AI-powered analysis for phrases and paragraphs!
 
+- Circle 2+ words for AI phrase/paragraph analysis (Claude or Gemini)
+- Scope-aware routing: single words use offline dictionary, multi-word uses AI
+- Encrypted API key storage for Claude and Gemini
+- Background Gemini Vision OCR correction for improved accuracy
+- Contextual word insights alongside definitions
+- Settings screen with AI provider configuration
+- ESL-optimized AI prompts for clear, learner-friendly explanations
+
+### Previous (v0.2.0 - Phase A)
 - Tap any word on captured text for instant offline definitions
 - Full-screen image with draggable overlay panel (replaces split view)
-- Two-finger zoom/pan works alongside word tapping - no mode switching
+- Two-finger zoom/pan works alongside word tapping
 - Circle mode for multi-word selection (toggle via FAB)
 - Pulsing blue highlight on tapped words
 - Landscape support: panel anchors to right side
-- Fixed WordNet database schema validation
-- 6 new unit tests for word tap detection
 
 ### Previous (v0.1.0 - Internal Testing)
 - Camera text capture with ML Kit OCR
