@@ -1,7 +1,13 @@
 package com.jworks.eigolens.ui.capture
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
@@ -21,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -35,12 +42,14 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.jworks.eigolens.R
 
-enum class InteractionMode { VIEW, DRAW }
-
 @Composable
 fun InteractiveImageViewer(
     capturedImage: CapturedImage,
+    interactionMode: InteractionMode,
+    onInteractionModeChange: (InteractionMode) -> Unit,
     onWordsSelected: (List<String>) -> Unit,
+    onWordTapped: (TapResult) -> Unit,
+    tappedWord: TapResult?,
     modifier: Modifier = Modifier
 ) {
     val bitmap = capturedImage.bitmap
@@ -48,16 +57,26 @@ fun InteractiveImageViewer(
 
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
-    var interactionMode by remember { mutableStateOf(InteractionMode.VIEW) }
     var lassoPoints by remember { mutableStateOf<List<Offset>>(emptyList()) }
     var selectedWordBounds by remember { mutableStateOf<List<android.graphics.Rect>>(emptyList()) }
+
+    // Pulse animation for tapped word highlight
+    val infiniteTransition = rememberInfiniteTransition(label = "tap_pulse")
+    val pulseAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 0.15f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "tap_pulse_alpha"
+    )
 
     BoxWithConstraints(modifier = modifier) {
         val containerWidth = constraints.maxWidth.toFloat()
         val containerHeight = constraints.maxHeight.toFloat()
         val containerSize = Size(containerWidth, containerHeight)
 
-        // Calculate initial scale to fit image
         val initialScale = remember(bitmap, containerWidth, containerHeight) {
             val scaleX = containerWidth / bitmap.width
             val scaleY = containerHeight / bitmap.height
@@ -68,57 +87,73 @@ fun InteractiveImageViewer(
             scale = initialScale
         }
 
-        // Zoom/pan gesture (VIEW mode only)
+        // Two-finger zoom/pan — works in both TAP and CIRCLE modes
         val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
-            if (interactionMode == InteractionMode.VIEW) {
-                scale = (scale * zoomChange).coerceIn(initialScale, initialScale * 5f)
+            scale = (scale * zoomChange).coerceIn(initialScale, initialScale * 5f)
 
-                val maxOffsetX = ((bitmap.width * scale - containerWidth) / 2f).coerceAtLeast(0f)
-                val maxOffsetY = ((bitmap.height * scale - containerHeight) / 2f).coerceAtLeast(0f)
+            val maxOffsetX = ((bitmap.width * scale - containerWidth) / 2f).coerceAtLeast(0f)
+            val maxOffsetY = ((bitmap.height * scale - containerHeight) / 2f).coerceAtLeast(0f)
 
-                offset = Offset(
-                    x = (offset.x + panChange.x).coerceIn(-maxOffsetX, maxOffsetX),
-                    y = (offset.y + panChange.y).coerceIn(-maxOffsetY, maxOffsetY)
-                )
-            }
+            offset = Offset(
+                x = (offset.x + panChange.x).coerceIn(-maxOffsetX, maxOffsetX),
+                y = (offset.y + panChange.y).coerceIn(-maxOffsetY, maxOffsetY)
+            )
         }
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                // Two-finger zoom/pan always active
+                .transformable(state = transformableState)
                 .then(
-                    if (interactionMode == InteractionMode.VIEW) {
-                        Modifier.transformable(state = transformableState)
-                    } else {
-                        Modifier.pointerInput(Unit) {
-                            detectDragGestures(
-                                onDragStart = { startPoint ->
-                                    lassoPoints = listOf(startPoint)
-                                    selectedWordBounds = emptyList()
-                                },
-                                onDrag = { change, _ ->
-                                    change.consume()
-                                    lassoPoints = lassoPoints + change.position
-                                },
-                                onDragEnd = {
-                                    if (lassoPoints.size >= 3) {
-                                        val words = findWordsInLasso(
-                                            lassoPoints, ocrResult, bitmap,
-                                            scale, offset, containerSize
-                                        )
-                                        if (words.isNotEmpty()) {
-                                            // Collect bounds of selected words for highlight
-                                            selectedWordBounds = findSelectedBounds(
+                    when (interactionMode) {
+                        InteractionMode.TAP -> {
+                            // Single-finger tap to find words
+                            Modifier.pointerInput(Unit) {
+                                detectTapGestures { tapOffset ->
+                                    val result = findTappedWord(
+                                        tapOffset, ocrResult, bitmap,
+                                        scale, offset, containerSize
+                                    )
+                                    if (result != null) {
+                                        selectedWordBounds = emptyList()
+                                        onWordTapped(result)
+                                    }
+                                }
+                            }
+                        }
+                        InteractionMode.CIRCLE -> {
+                            // Single-finger drag to draw lasso
+                            Modifier.pointerInput(Unit) {
+                                detectDragGestures(
+                                    onDragStart = { startPoint ->
+                                        lassoPoints = listOf(startPoint)
+                                        selectedWordBounds = emptyList()
+                                    },
+                                    onDrag = { change, _ ->
+                                        change.consume()
+                                        lassoPoints = lassoPoints + change.position
+                                    },
+                                    onDragEnd = {
+                                        if (lassoPoints.size >= 3) {
+                                            val words = findWordsInLasso(
                                                 lassoPoints, ocrResult, bitmap,
                                                 scale, offset, containerSize
                                             )
-                                            onWordsSelected(words)
+                                            if (words.isNotEmpty()) {
+                                                selectedWordBounds = findSelectedBounds(
+                                                    lassoPoints, ocrResult, bitmap,
+                                                    scale, offset, containerSize
+                                                )
+                                                onWordsSelected(words)
+                                            }
                                         }
+                                        lassoPoints = emptyList()
+                                        // Auto-switch back to TAP after lasso selection
+                                        onInteractionModeChange(InteractionMode.TAP)
                                     }
-                                    lassoPoints = emptyList()
-                                    interactionMode = InteractionMode.VIEW
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 )
@@ -138,7 +173,7 @@ fun InteractiveImageViewer(
                 )
             }
 
-            // Layer 2: OCR bounding boxes + lasso + selection highlights
+            // Layer 2: OCR bounding boxes + highlights + lasso
             Canvas(modifier = Modifier.fillMaxSize()) {
                 // Draw OCR word bounding boxes
                 for (detected in ocrResult.texts) {
@@ -156,7 +191,26 @@ fun InteractiveImageViewer(
                     }
                 }
 
-                // Draw selected word highlights
+                // Draw tapped word highlight (blue rounded rect with pulse)
+                tappedWord?.let { tap ->
+                    val bounds = tap.screenBounds
+                    val padding = 4f
+                    drawRoundRect(
+                        color = Color(0xFF2196F3).copy(alpha = pulseAlpha),
+                        topLeft = Offset(bounds.left - padding, bounds.top - padding),
+                        size = Size(bounds.width + padding * 2, bounds.height + padding * 2),
+                        cornerRadius = CornerRadius(6f, 6f)
+                    )
+                    drawRoundRect(
+                        color = Color(0xFF2196F3),
+                        topLeft = Offset(bounds.left - padding, bounds.top - padding),
+                        size = Size(bounds.width + padding * 2, bounds.height + padding * 2),
+                        cornerRadius = CornerRadius(6f, 6f),
+                        style = Stroke(width = 2.5f)
+                    )
+                }
+
+                // Draw lasso-selected word highlights (orange)
                 for (bounds in selectedWordBounds) {
                     val screenRect = transformBoundsToScreen(
                         bounds, bitmap, scale, offset, containerSize
@@ -191,37 +245,38 @@ fun InteractiveImageViewer(
             }
         }
 
-        // Mode toggle FAB
+        // Mode toggle FAB: TAP ↔ CIRCLE
         FloatingActionButton(
             onClick = {
-                interactionMode = if (interactionMode == InteractionMode.VIEW) {
-                    InteractionMode.DRAW
+                val newMode = if (interactionMode == InteractionMode.TAP) {
+                    InteractionMode.CIRCLE
                 } else {
-                    InteractionMode.VIEW
+                    InteractionMode.TAP
                 }
+                onInteractionModeChange(newMode)
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(8.dp)
                 .size(40.dp),
-            containerColor = if (interactionMode == InteractionMode.DRAW)
+            containerColor = if (interactionMode == InteractionMode.CIRCLE)
                 Color(0xFFFFEB3B) else Color.Black.copy(alpha = 0.6f),
-            contentColor = if (interactionMode == InteractionMode.DRAW)
+            contentColor = if (interactionMode == InteractionMode.CIRCLE)
                 Color.Black else Color.White
         ) {
             Icon(
                 painter = painterResource(
-                    if (interactionMode == InteractionMode.DRAW) R.drawable.ic_pan
-                    else R.drawable.ic_draw
+                    if (interactionMode == InteractionMode.CIRCLE) R.drawable.ic_tap
+                    else R.drawable.ic_circle
                 ),
-                contentDescription = if (interactionMode == InteractionMode.DRAW)
-                    "Switch to pan/zoom" else "Draw to select words",
+                contentDescription = if (interactionMode == InteractionMode.CIRCLE)
+                    "Switch to tap mode" else "Switch to circle mode",
                 modifier = Modifier.size(20.dp)
             )
         }
 
         // Mode indicator
-        if (interactionMode == InteractionMode.DRAW) {
+        if (interactionMode == InteractionMode.CIRCLE) {
             Text(
                 text = "Draw around words",
                 color = Color(0xFFFFEB3B),

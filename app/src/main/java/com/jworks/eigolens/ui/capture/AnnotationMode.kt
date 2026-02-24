@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,12 +33,12 @@ fun AnnotationMode(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val lookupState by viewModel.lookupState.collectAsState()
-    val analysisMode by viewModel.analysisMode.collectAsState()
-    val readabilityMetrics by viewModel.readabilityMetrics.collectAsState()
+    val panelState by viewModel.panelState.collectAsState()
+    val interactionMode by viewModel.interactionMode.collectAsState()
+    val tappedWord by viewModel.tappedWord.collectAsState()
 
     Column(modifier = modifier.fillMaxSize()) {
-        // Top 40%: Interactive image viewer with lasso
+        // Top 40%: Interactive image viewer with tap + circle
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -49,7 +47,11 @@ fun AnnotationMode(
         ) {
             InteractiveImageViewer(
                 capturedImage = capturedImage,
+                interactionMode = interactionMode,
+                onInteractionModeChange = { viewModel.setInteractionMode(it) },
                 onWordsSelected = { words -> viewModel.selectWords(words) },
+                onWordTapped = { tapResult -> viewModel.onWordTapped(tapResult) },
+                tappedWord = tappedWord,
                 modifier = Modifier.fillMaxSize()
             )
 
@@ -88,53 +90,47 @@ fun AnnotationMode(
                 .weight(0.6f)
                 .background(Color(0xFFF8F9FA))
         ) {
-            when (analysisMode) {
-                is AnalysisMode.WordLookup -> {
-                    when (val state = lookupState) {
-                        is LookupState.Success -> {
-                            DefinitionPanel(
-                                definition = state.definition,
-                                onDismiss = {},
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                        is LookupState.Loading -> {
-                            DefinitionSkeleton(modifier = Modifier.fillMaxSize())
-                        }
-                        is LookupState.NotFound -> {
-                            InstructionsPanel(
-                                message = "No definition found for \"${state.word}\"",
-                                isError = true
-                            )
-                        }
-                        is LookupState.Error -> {
-                            InstructionsPanel(
-                                message = state.message ?: "An error occurred",
-                                isError = true
-                            )
-                        }
-                        is LookupState.Idle -> {
-                            InstructionsPanel(
-                                message = "Tap the pencil icon on the image, then draw a circle around any word or phrase to look it up"
-                            )
-                        }
-                    }
+            when (val state = panelState) {
+                is PanelState.WordDefinition -> {
+                    DefinitionPanel(
+                        definition = state.definition,
+                        onDismiss = {},
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
-                is AnalysisMode.Readability -> {
-                    readabilityMetrics?.let { metrics ->
-                        ReadabilityPanel(
-                            metrics = metrics,
-                            onBack = { viewModel.switchToWordLookup() },
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
+                is PanelState.Loading -> {
+                    DefinitionSkeleton(modifier = Modifier.fillMaxSize())
+                }
+                is PanelState.ReadabilityResult -> {
+                    ReadabilityPanel(
+                        metrics = state.metrics,
+                        onBack = { viewModel.switchToWordLookup() },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                is PanelState.NotFound -> {
+                    InstructionsPanel(
+                        message = "No definition found for \"${state.word}\"",
+                        isError = true
+                    )
+                }
+                is PanelState.Error -> {
+                    InstructionsPanel(
+                        message = state.message,
+                        isError = true
+                    )
+                }
+                is PanelState.Idle -> {
+                    InstructionsPanel(
+                        message = "Tap any word to look it up, or switch to circle mode to select phrases"
+                    )
                 }
             }
 
-            // READ / WORD toggle FAB
+            // Readability toggle FAB
             FloatingActionButton(
                 onClick = {
-                    if (analysisMode is AnalysisMode.Readability) {
+                    if (panelState is PanelState.ReadabilityResult) {
                         viewModel.switchToWordLookup()
                     } else {
                         viewModel.analyzeReadability()
@@ -143,16 +139,16 @@ fun AnnotationMode(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
-                containerColor = if (analysisMode is AnalysisMode.Readability)
+                containerColor = if (panelState is PanelState.ReadabilityResult)
                     Color(0xFF4CAF50) else Color(0xFF2196F3),
                 contentColor = Color.White
             ) {
                 Icon(
                     painter = painterResource(
-                        if (analysisMode is AnalysisMode.Readability)
+                        if (panelState is PanelState.ReadabilityResult)
                             R.drawable.ic_search else R.drawable.ic_read
                     ),
-                    contentDescription = if (analysisMode is AnalysisMode.Readability)
+                    contentDescription = if (panelState is PanelState.ReadabilityResult)
                         "Word lookup" else "Readability analysis"
                 )
             }
@@ -175,7 +171,7 @@ private fun InstructionsPanel(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
                 painter = painterResource(
-                    if (isError) R.drawable.ic_search else R.drawable.ic_draw
+                    if (isError) R.drawable.ic_search else R.drawable.ic_tap
                 ),
                 contentDescription = null,
                 modifier = Modifier
