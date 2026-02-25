@@ -157,7 +157,7 @@ jobs:
 
       - name: Install provisioning profile
         env:
-          PROVISIONING_PROFILE_BASE64: ${{ secrets.EIGOLENS_PROVISIONING_PROFILE_BASE64 }}
+          PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
         run: |
           PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
           echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode -o "$PP_PATH"
@@ -239,9 +239,9 @@ jobs:
 
       - name: Upload to TestFlight
         env:
-          ASC_API_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_API_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          ASC_API_KEY_CONTENT: ${{ secrets.ASC_PRIVATE_KEY }}
+          ASC_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          ASC_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+          ASC_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY_BASE64 }}
         run: |
           mkdir -p ~/.private_keys
           echo "$ASC_API_KEY_CONTENT" > ~/.private_keys/AuthKey_"${ASC_API_KEY_ID}".p8
