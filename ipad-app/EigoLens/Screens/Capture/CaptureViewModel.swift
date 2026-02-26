@@ -12,7 +12,9 @@ final class CaptureViewModel: NSObject, ObservableObject {
     private var photoOutput = AVCapturePhotoOutput()
     private var ocrService: OCRService?
     private var onCapture: ((CapturedImage) -> Void)?
-    private var photoContinuation: CheckedContinuation<UIImage, Error>?
+
+    // Use nonisolated(unsafe) so the delegate callback can access it
+    nonisolated(unsafe) private var photoContinuation: CheckedContinuation<UIImage, Error>?
 
     func configure(ocrService: OCRService, onCapture: @escaping (CapturedImage) -> Void) {
         self.ocrService = ocrService
@@ -68,6 +70,7 @@ final class CaptureViewModel: NSObject, ObservableObject {
                 let image = try await takePhoto()
                 await processImage(image)
             } catch {
+                print("CaptureViewModel: photo capture error: \(error)")
                 isProcessing = false
             }
         }
@@ -104,13 +107,20 @@ final class CaptureViewModel: NSObject, ObservableObject {
 
         let image = downscaleImage(rawImage)
 
+        // Run OCR off the main actor to avoid blocking UI
         do {
-            let ocrResult = try await ocrService.recognizeText(in: image)
+            let ocrResult = try await Task.detached {
+                try await ocrService.recognizeText(in: image)
+            }.value
             let captured = CapturedImage(image: image, ocrResult: ocrResult)
             isProcessing = false
             onCapture?(captured)
         } catch {
+            print("CaptureViewModel: OCR error: \(error)")
+            // Still navigate with empty OCR result so the app doesn't get stuck
+            let captured = CapturedImage(image: image, ocrResult: .empty)
             isProcessing = false
+            onCapture?(captured)
         }
     }
 
@@ -137,29 +147,27 @@ extension CaptureViewModel: AVCapturePhotoCaptureDelegate {
         didFinishProcessingPhoto photo: AVCapturePhoto,
         error: Error?
     ) {
-        Task { @MainActor in
-            if let error {
-                photoContinuation?.resume(throwing: error)
-                photoContinuation = nil
-                return
-            }
-
-            guard let data = photo.fileDataRepresentation(),
-                  let image = UIImage(data: data)
-            else {
-                photoContinuation?.resume(throwing: CaptureError.noData)
-                photoContinuation = nil
-                return
-            }
-
-            // Normalize orientation
-            let normalized = normalizeOrientation(image)
-            photoContinuation?.resume(returning: normalized)
+        if let error {
+            photoContinuation?.resume(throwing: error)
             photoContinuation = nil
+            return
         }
+
+        guard let data = photo.fileDataRepresentation(),
+              let image = UIImage(data: data)
+        else {
+            photoContinuation?.resume(throwing: CaptureError.noData)
+            photoContinuation = nil
+            return
+        }
+
+        // Normalize orientation
+        let normalized = normalizeOrientation(image)
+        photoContinuation?.resume(returning: normalized)
+        photoContinuation = nil
     }
 
-    private func normalizeOrientation(_ image: UIImage) -> UIImage {
+    nonisolated private func normalizeOrientation(_ image: UIImage) -> UIImage {
         guard image.imageOrientation != .up else { return image }
         let renderer = UIGraphicsImageRenderer(size: image.size)
         return renderer.image { _ in

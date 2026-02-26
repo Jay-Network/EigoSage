@@ -8,6 +8,11 @@ struct CaptureScreen: View {
     @EnvironmentObject var container: AppContainer
     @StateObject private var viewModel = CaptureViewModel()
     @State private var showGalleryPicker = false
+    @Environment(\.verticalSizeClass) var vSizeClass
+
+    var isLandscape: Bool {
+        vSizeClass == .compact
+    }
 
     var body: some View {
         ZStack {
@@ -19,74 +24,11 @@ struct CaptureScreen: View {
                 cameraPermissionView
             }
 
-            // Controls overlay
-            VStack {
-                // Top bar
-                HStack {
-                    Button(action: { onNavigate(.history) }) {
-                        Image(systemName: "clock.arrow.circlepath")
-                            .font(.title2)
-                            .foregroundStyle(.white)
-                            .padding(12)
-                            .background(.ultraThinMaterial, in: Circle())
-                    }
-
-                    Spacer()
-
-                    if viewModel.permissionGranted {
-                        Button(action: { viewModel.toggleFlash() }) {
-                            Image(systemName: viewModel.isFlashOn ? "bolt.fill" : "bolt.slash.fill")
-                                .font(.title2)
-                                .foregroundStyle(viewModel.isFlashOn ? .yellow : .white)
-                                .padding(12)
-                                .background(.ultraThinMaterial, in: Circle())
-                        }
-                    }
-
-                    Button(action: { onNavigate(.settings) }) {
-                        Image(systemName: "gearshape.fill")
-                            .font(.title2)
-                            .foregroundStyle(.white)
-                            .padding(12)
-                            .background(.ultraThinMaterial, in: Circle())
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
-
-                Spacer()
-
-                // Bottom controls
-                if viewModel.permissionGranted {
-                    HStack(spacing: 40) {
-                        // Gallery import
-                        Button(action: { showGalleryPicker = true }) {
-                            Image(systemName: "photo.on.rectangle")
-                                .font(.title2)
-                                .foregroundStyle(.white)
-                                .frame(width: 56, height: 56)
-                                .background(.ultraThinMaterial, in: Circle())
-                        }
-
-                        // Shutter button
-                        Button(action: { viewModel.capturePhoto() }) {
-                            ZStack {
-                                Circle()
-                                    .fill(.white)
-                                    .frame(width: 72, height: 72)
-                                Circle()
-                                    .stroke(.white, lineWidth: 4)
-                                    .frame(width: 82, height: 82)
-                            }
-                        }
-                        .disabled(viewModel.isProcessing)
-
-                        // Spacer for symmetry
-                        Color.clear
-                            .frame(width: 56, height: 56)
-                    }
-                    .padding(.bottom, 32)
-                }
+            // Controls overlay — adapts to landscape
+            if isLandscape {
+                landscapeControls
+            } else {
+                portraitControls
             }
 
             // Processing overlay
@@ -110,6 +52,119 @@ struct CaptureScreen: View {
                 viewModel.importFromGallery(image)
             })
         }
+    }
+
+    // MARK: - Landscape: controls on the right side
+
+    private var landscapeControls: some View {
+        HStack {
+            // Top-left controls
+            VStack {
+                Button(action: { onNavigate(.history) }) {
+                    controlIcon("clock.arrow.circlepath")
+                }
+                Button(action: { onNavigate(.settings) }) {
+                    controlIcon("gearshape.fill")
+                }
+                Spacer()
+            }
+            .padding(.leading, 20)
+            .padding(.top, 12)
+
+            Spacer()
+
+            // Right-side capture controls
+            if viewModel.permissionGranted {
+                VStack(spacing: 32) {
+                    if viewModel.permissionGranted {
+                        Button(action: { viewModel.toggleFlash() }) {
+                            Image(systemName: viewModel.isFlashOn ? "bolt.fill" : "bolt.slash.fill")
+                                .font(.title2)
+                                .foregroundStyle(viewModel.isFlashOn ? .yellow : .white)
+                                .padding(12)
+                                .background(.ultraThinMaterial, in: Circle())
+                        }
+                    }
+
+                    // Shutter
+                    Button(action: { viewModel.capturePhoto() }) {
+                        ZStack {
+                            Circle().fill(.white).frame(width: 72, height: 72)
+                            Circle().stroke(.white, lineWidth: 4).frame(width: 82, height: 82)
+                        }
+                    }
+                    .disabled(viewModel.isProcessing)
+
+                    // Gallery
+                    Button(action: { showGalleryPicker = true }) {
+                        controlIcon("photo.on.rectangle")
+                    }
+                }
+                .padding(.trailing, 28)
+            }
+        }
+    }
+
+    // MARK: - Portrait: controls top/bottom
+
+    private var portraitControls: some View {
+        VStack {
+            // Top bar
+            HStack {
+                Button(action: { onNavigate(.history) }) {
+                    controlIcon("clock.arrow.circlepath")
+                }
+
+                Spacer()
+
+                if viewModel.permissionGranted {
+                    Button(action: { viewModel.toggleFlash() }) {
+                        Image(systemName: viewModel.isFlashOn ? "bolt.fill" : "bolt.slash.fill")
+                            .font(.title2)
+                            .foregroundStyle(viewModel.isFlashOn ? .yellow : .white)
+                            .padding(12)
+                            .background(.ultraThinMaterial, in: Circle())
+                    }
+                }
+
+                Button(action: { onNavigate(.settings) }) {
+                    controlIcon("gearshape.fill")
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 8)
+
+            Spacer()
+
+            // Bottom controls
+            if viewModel.permissionGranted {
+                HStack(spacing: 40) {
+                    Button(action: { showGalleryPicker = true }) {
+                        controlIcon("photo.on.rectangle")
+                            .frame(width: 56, height: 56)
+                    }
+
+                    Button(action: { viewModel.capturePhoto() }) {
+                        ZStack {
+                            Circle().fill(.white).frame(width: 72, height: 72)
+                            Circle().stroke(.white, lineWidth: 4).frame(width: 82, height: 82)
+                        }
+                    }
+                    .disabled(viewModel.isProcessing)
+
+                    Color.clear.frame(width: 56, height: 56)
+                }
+                .padding(.bottom, 32)
+            }
+        }
+    }
+
+    private func controlIcon(_ systemName: String) -> some View {
+        Image(systemName: systemName)
+            .font(.title2)
+            .foregroundStyle(.white)
+            .padding(12)
+            .background(.ultraThinMaterial, in: Circle())
     }
 
     private var cameraPermissionView: some View {
