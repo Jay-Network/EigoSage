@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CropFree
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -53,7 +54,10 @@ fun DifficultWordsPanel(
     isAiLoading: Boolean = false,
     onAiAnalyze: () -> Unit = {},
     interactionMode: InteractionMode = InteractionMode.TAP,
-    onInteractionModeChange: (InteractionMode) -> Unit = {}
+    onInteractionModeChange: (InteractionMode) -> Unit = {},
+    onSendToEigoQuest: () -> Unit = {},
+    isSendingToEigoQuest: Boolean = false,
+    eiGoQuestSendResult: String? = null
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         // Header
@@ -212,6 +216,57 @@ fun DifficultWordsPanel(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+        }
+
+        // Send to EigoQuest footer
+        if (words.isNotEmpty()) {
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                if (eiGoQuestSendResult != null) {
+                    Text(
+                        text = eiGoQuestSendResult,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                } else {
+                    Text(
+                        text = "${words.size} words",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Button(
+                    onClick = onSendToEigoQuest,
+                    enabled = !isSendingToEigoQuest && words.isNotEmpty(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    ),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    if (isSendingToEigoQuest) {
+                        androidx.compose.material3.CircularProgressIndicator(
+                            modifier = Modifier.size(14.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    } else {
+                        Icon(
+                            Icons.Default.Send,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Send to EigoQuest", style = MaterialTheme.typography.labelMedium)
+                }
             }
         }
     }

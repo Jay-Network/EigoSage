@@ -56,6 +56,8 @@ fun AnnotationMode(
     val isBookmarked by viewModel.isCurrentWordBookmarked.collectAsState()
     val enrichedWords by viewModel.enrichedWords.collectAsState()
     val cefrThreshold by viewModel.cefrThreshold.collectAsState()
+    val isSendingToEigoQuest by viewModel.isSendingToEigoQuest.collectAsState()
+    val eiGoQuestSendResult by viewModel.eiGoQuestSendResult.collectAsState()
     val showIpa by viewModel.showIpaOverlay.collectAsState()
     val ipaFontScale by viewModel.ipaFontScale.collectAsState()
     val configuration = LocalConfiguration.current
@@ -155,7 +157,10 @@ fun AnnotationMode(
                 onAiAnalyze = { viewModel.analyzeFullText() },
                 interactionMode = interactionMode,
                 onInteractionModeChange = { viewModel.setInteractionMode(it) },
-                onBackToWords = { viewModel.showDifficultWordsPanel() }
+                onBackToWords = { viewModel.showDifficultWordsPanel() },
+                onSendToEigoQuest = { viewModel.sendToEigoQuest() },
+                isSendingToEigoQuest = isSendingToEigoQuest,
+                eiGoQuestSendResult = eiGoQuestSendResult
             )
         } else {
             PortraitPanel(
@@ -168,7 +173,10 @@ fun AnnotationMode(
                 onAiAnalyze = { viewModel.analyzeFullText() },
                 interactionMode = interactionMode,
                 onInteractionModeChange = { viewModel.setInteractionMode(it) },
-                onBackToWords = { viewModel.showDifficultWordsPanel() }
+                onBackToWords = { viewModel.showDifficultWordsPanel() },
+                onSendToEigoQuest = { viewModel.sendToEigoQuest() },
+                isSendingToEigoQuest = isSendingToEigoQuest,
+                eiGoQuestSendResult = eiGoQuestSendResult
             )
         }
     }
@@ -185,7 +193,10 @@ private fun PortraitPanel(
     onAiAnalyze: () -> Unit = {},
     interactionMode: InteractionMode = InteractionMode.TAP,
     onInteractionModeChange: (InteractionMode) -> Unit = {},
-    onBackToWords: () -> Unit = {}
+    onBackToWords: () -> Unit = {},
+    onSendToEigoQuest: () -> Unit = {},
+    isSendingToEigoQuest: Boolean = false,
+    eiGoQuestSendResult: String? = null
 ) {
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
@@ -242,7 +253,10 @@ private fun PortraitPanel(
                         onAiAnalyze = onAiAnalyze,
                         interactionMode = interactionMode,
                         onInteractionModeChange = onInteractionModeChange,
-                        onBackToWords = onBackToWords
+                        onBackToWords = onBackToWords,
+                        onSendToEigoQuest = onSendToEigoQuest,
+                        isSendingToEigoQuest = isSendingToEigoQuest,
+                        eiGoQuestSendResult = eiGoQuestSendResult
                     )
                 }
             }
@@ -261,7 +275,10 @@ private fun LandscapePanel(
     onAiAnalyze: () -> Unit = {},
     interactionMode: InteractionMode = InteractionMode.TAP,
     onInteractionModeChange: (InteractionMode) -> Unit = {},
-    onBackToWords: () -> Unit = {}
+    onBackToWords: () -> Unit = {},
+    onSendToEigoQuest: () -> Unit = {},
+    isSendingToEigoQuest: Boolean = false,
+    eiGoQuestSendResult: String? = null
 ) {
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
@@ -315,7 +332,10 @@ private fun LandscapePanel(
                         onAiAnalyze = onAiAnalyze,
                         interactionMode = interactionMode,
                         onInteractionModeChange = onInteractionModeChange,
-                        onBackToWords = onBackToWords
+                        onBackToWords = onBackToWords,
+                        onSendToEigoQuest = onSendToEigoQuest,
+                        isSendingToEigoQuest = isSendingToEigoQuest,
+                        eiGoQuestSendResult = eiGoQuestSendResult
                     )
                 }
             }
@@ -384,7 +404,10 @@ private fun PanelContent(
     onAiAnalyze: () -> Unit = {},
     interactionMode: InteractionMode = InteractionMode.TAP,
     onInteractionModeChange: (InteractionMode) -> Unit = {},
-    onBackToWords: () -> Unit = {}
+    onBackToWords: () -> Unit = {},
+    onSendToEigoQuest: () -> Unit = {},
+    isSendingToEigoQuest: Boolean = false,
+    eiGoQuestSendResult: String? = null
 ) {
     Box(modifier = modifier) {
         when (val state = panelState) {
@@ -414,7 +437,10 @@ private fun PanelContent(
                     modifier = Modifier.fillMaxSize(),
                     onAiAnalyze = onAiAnalyze,
                     interactionMode = interactionMode,
-                    onInteractionModeChange = onInteractionModeChange
+                    onInteractionModeChange = onInteractionModeChange,
+                    onSendToEigoQuest = onSendToEigoQuest,
+                    isSendingToEigoQuest = isSendingToEigoQuest,
+                    eiGoQuestSendResult = eiGoQuestSendResult
                 )
             }
             is PanelState.AiLoading -> {

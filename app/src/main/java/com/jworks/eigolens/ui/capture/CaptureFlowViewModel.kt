@@ -17,6 +17,7 @@ import com.jworks.eigolens.data.jcoin.JCoinClient
 import com.jworks.eigolens.data.jcoin.JCoinEarnRules
 import com.jworks.eigolens.data.jcoin.JCoinSpendRules
 import com.jworks.eigolens.data.repository.DefinitionRepository
+import com.jworks.eigolens.data.repository.EigoQuestTransferRepository
 import com.jworks.eigolens.data.repository.HistoryRepository
 import com.jworks.eigolens.data.repository.WordEnrichmentRepository
 import com.jworks.eigolens.domain.models.CefrLevel
@@ -82,6 +83,7 @@ class CaptureFlowViewModel @Inject constructor(
     private val geminiOcrCorrector: GeminiOcrCorrector,
     private val historyRepository: HistoryRepository,
     private val wordEnrichmentRepository: WordEnrichmentRepository,
+    private val eigoQuestTransferRepository: EigoQuestTransferRepository,
     private val jCoinClient: JCoinClient,
     private val jCoinEarnRules: JCoinEarnRules,
     private val jCoinSpendRules: JCoinSpendRules,
@@ -139,6 +141,12 @@ class CaptureFlowViewModel @Inject constructor(
 
     private val _ipaFontScale = MutableStateFlow(0.6f)
     val ipaFontScale: StateFlow<Float> = _ipaFontScale.asStateFlow()
+
+    private val _isSendingToEigoQuest = MutableStateFlow(false)
+    val isSendingToEigoQuest: StateFlow<Boolean> = _isSendingToEigoQuest.asStateFlow()
+
+    private val _eiGoQuestSendResult = MutableStateFlow<String?>(null)
+    val eiGoQuestSendResult: StateFlow<String?> = _eiGoQuestSendResult.asStateFlow()
 
     private var _isLiveProcessing = false
     private var _liveFrameCount = 0
@@ -582,6 +590,30 @@ class CaptureFlowViewModel @Inject constructor(
         _panelState.value = PanelState.DifficultWordsList(unique, threshold)
     }
 
+    fun sendToEigoQuest() {
+        if (_isSendingToEigoQuest.value) return
+        val threshold = _cefrThreshold.value
+        val words = _enrichedWords.value.filter { word ->
+            word.cefr != null && word.cefr.ordinalIndex >= threshold.ordinalIndex
+        }.distinctBy { it.text }
+        if (words.isEmpty()) return
+
+        _isSendingToEigoQuest.value = true
+        _eiGoQuestSendResult.value = null
+        viewModelScope.launch {
+            eigoQuestTransferRepository.sendWords(words)
+                .onSuccess { count ->
+                    _eiGoQuestSendResult.value = "Sent $count words to EigoQuest"
+                    Log.d(TAG, "EigoQuest transfer: $count words sent")
+                }
+                .onFailure { e ->
+                    _eiGoQuestSendResult.value = "Send failed: ${e.message}"
+                    Log.w(TAG, "EigoQuest transfer failed", e)
+                }
+            _isSendingToEigoQuest.value = false
+        }
+    }
+
     private fun enrichWords(ocrResult: com.jworks.eigolens.domain.models.OCRResult) {
         viewModelScope.launch {
             val enriched = wordEnrichmentRepository.enrichOcrWords(ocrResult)
@@ -616,6 +648,7 @@ class CaptureFlowViewModel @Inject constructor(
         _liveEnrichedWords.value = emptyList()
         _prevLiveEnriched = emptyList()
         _emptyFrameCount = 0
+        _eiGoQuestSendResult.value = null
         reviewedWordsThisScan.clear()
         allDifficultClearedThisScan = false
     }
