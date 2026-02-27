@@ -121,6 +121,8 @@ private fun WordWithDefinitions.toDomain(): Definition {
                 synonyms = def.synonyms?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList(),
                 antonyms = def.antonyms?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
             )
-        }
+        },
+        phonetic = word.phonetic,
+        cefrLevel = word.cefrLevel
     )
 }

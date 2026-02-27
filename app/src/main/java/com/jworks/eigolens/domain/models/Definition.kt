@@ -4,7 +4,9 @@ data class Definition(
     val word: String,
     val lemma: String,
     val frequency: Int?,
-    val meanings: List<Meaning>
+    val meanings: List<Meaning>,
+    val phonetic: String? = null,
+    val cefrLevel: String? = null
 )
 
 data class Meaning(

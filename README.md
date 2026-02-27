@@ -18,6 +18,9 @@ Point your camera at any English text, capture it, then tap any word for instant
 - **Overlay panel**: Draggable results panel over full-screen image - resize by dragging
 - **Two-finger zoom/pan**: Works alongside tap/circle without mode switching
 - **Encrypted API key storage**: Android Keystore-backed encrypted SharedPreferences
+- **Word history**: Automatic tracking of all lookups with timestamps and scope levels
+- **Bookmarks**: Save words with definitions and context for later review
+- **History screen**: Recent lookups and saved words in a tabbed interface
 - **Gallery import**: Analyze photos from your gallery
 - **Guest mode**: Core features work without an account
 
@@ -46,9 +49,9 @@ app/src/main/java/com/jworks/eigolens/
 ├── data/
 │   ├── ai/             # AI providers (Claude, Gemini), prompts, OCR correction
 │   ├── auth/           # Supabase auth repository
-│   ├── local/          # Room DB, WordNet DAO, entities
+│   ├── local/          # Room DBs (WordNet read-only + user data), DAOs, entities
 │   ├── preferences/    # DataStore settings, SecureKeyStore (encrypted API keys)
-│   └── repository/     # Definition repository (cache → WordNet → cloud)
+│   └── repository/     # Definition repository, HistoryRepository
 ├── di/                 # Hilt modules (AppModule, AiModule)
 ├── domain/
 │   ├── ai/             # AiProvider interface, AiResponse, AnalysisContext
@@ -63,6 +66,7 @@ app/src/main/java/com/jworks/eigolens/
     ├── capture/        # CaptureFlow, AnnotationMode, AiAnalysisPanel
     ├── feedback/       # In-app feedback
     ├── gallery/        # Gallery import
+    ├── history/        # History screen (recent lookups + bookmarks)
     ├── settings/       # Settings screen (API key management)
     └── theme/          # Material3 theme
 ```
@@ -112,8 +116,8 @@ RELEASE_KEY_PASSWORD=...
 - **Phase A** (done): Tap-to-define, overlay panel, zoom/pan coexistence
 - **Phase B** (done): AI-powered phrase/sentence analysis (Claude + Gemini), encrypted key storage, scope routing, Gemini OCR correction
 - **Phase B+** (done): UI polish, M3 theming, long-press sentence analysis, full-text AI FAB, labeled FABs, overlay readability, provider selection UX
-- **Phase C** (next): Reading context system, study mode integration
-- **Phase D**: Persistent history, bookmarks, cross-session AI context, VocabQuest integration
+- **Phase C** (done): Word history & bookmarks - automatic lookup tracking, bookmark toggle in definition panel, history screen with Recent/Saved tabs
+- **Phase D** (next): Spaced repetition, study mode, VocabQuest export, cross-session AI context
 
 ## License
 

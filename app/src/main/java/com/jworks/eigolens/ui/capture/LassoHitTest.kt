@@ -1,8 +1,6 @@
 package com.jworks.eigolens.ui.capture
 
 import android.graphics.Bitmap
-import android.graphics.Path
-import android.graphics.Region
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -16,29 +14,19 @@ import com.jworks.eigolens.domain.models.OCRResult
  * 4. Hit-test: check if each word's bounding box center is inside the lasso path
  */
 
-fun findWordsInLasso(
-    lassoPoints: List<Offset>,
+fun findWordsInRect(
+    start: Offset,
+    end: Offset,
     ocrResult: OCRResult,
     bitmap: Bitmap,
     scale: Float,
     offset: Offset,
     containerSize: Size
 ): List<String> {
-    if (lassoPoints.size < 3) return emptyList()
-
-    val path = Path().apply {
-        moveTo(lassoPoints.first().x, lassoPoints.first().y)
-        for (i in 1 until lassoPoints.size) {
-            lineTo(lassoPoints[i].x, lassoPoints[i].y)
-        }
-        close()
-    }
-
-    val clipRegion = Region(
-        0, 0, containerSize.width.toInt(), containerSize.height.toInt()
-    )
-    val lassoRegion = Region()
-    lassoRegion.setPath(path, clipRegion)
+    val left = minOf(start.x, end.x)
+    val top = minOf(start.y, end.y)
+    val right = maxOf(start.x, end.x)
+    val bottom = maxOf(start.y, end.y)
 
     data class WordHit(val text: String, val top: Int, val left: Int)
     val hits = mutableListOf<WordHit>()
@@ -57,7 +45,7 @@ fun findWordsInLasso(
                 containerSize = containerSize
             )
 
-            if (lassoRegion.contains(center.x.toInt(), center.y.toInt())) {
+            if (center.x in left..right && center.y in top..bottom) {
                 hits.add(WordHit(element.text, bounds.top, bounds.left))
             }
         }

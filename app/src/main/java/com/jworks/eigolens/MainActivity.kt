@@ -19,9 +19,9 @@ import androidx.navigation.compose.rememberNavController
 import com.jworks.eigolens.ui.auth.LoginScreen
 import com.jworks.eigolens.ui.capture.CaptureFlowScreen
 import com.jworks.eigolens.ui.feedback.FeedbackDialog
-import com.jworks.eigolens.ui.feedback.FeedbackFAB
 import com.jworks.eigolens.ui.feedback.FeedbackViewModel
 import com.jworks.eigolens.ui.gallery.GalleryImportScreen
+import com.jworks.eigolens.ui.history.HistoryScreen
 import com.jworks.eigolens.ui.settings.SettingsScreen
 import com.jworks.eigolens.ui.theme.EigoLensTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,10 +44,7 @@ class MainActivity : ComponentActivity() {
                     color = Color.Black
                 ) {
                     Scaffold(
-                        containerColor = Color.Transparent,
-                        floatingActionButton = {
-                            FeedbackFAB(onClick = { feedbackViewModel.openDialog() })
-                        }
+                        containerColor = Color.Transparent
                     ) { innerPadding ->
                         NavHost(
                             navController = navController,
@@ -72,7 +69,9 @@ class MainActivity : ComponentActivity() {
                             composable("capture") {
                                 CaptureFlowScreen(
                                     onSettingsClick = { navController.navigate("settings") },
-                                    onGalleryClick = { navController.navigate("gallery") }
+                                    onGalleryClick = { navController.navigate("gallery") },
+                                    onHistoryClick = { navController.navigate("history") },
+                                    onFeedbackClick = { feedbackViewModel.openDialog() }
                                 )
                             }
 
@@ -85,6 +84,12 @@ class MainActivity : ComponentActivity() {
                             composable("gallery") {
                                 GalleryImportScreen(
                                     onBack = { navController.popBackStack() }
+                                )
+                            }
+
+                            composable("history") {
+                                HistoryScreen(
+                                    onBackClick = { navController.popBackStack() }
                                 )
                             }
                         }

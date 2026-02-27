@@ -56,7 +56,7 @@ targets:
         script: |
           # Copy WordNet database from Android project if not present
           DB_DEST="${PROJECT_DIR}/EigoLens/Resources/wordnet.db"
-          DB_SRC="${PROJECT_DIR}/../app/src/main/assets/wordnet.db"
+          DB_SRC="${PROJECT_DIR}/../EigoLens/app/src/main/assets/wordnet.db"
           if [ ! -f "$DB_DEST" ] && [ -f "$DB_SRC" ]; then
             cp "$DB_SRC" "$DB_DEST"
           fi

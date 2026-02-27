@@ -10,16 +10,13 @@ struct CameraPreviewView: UIViewRepresentable {
         return view
     }
 
-    func updateUIView(_ uiView: PreviewUIView, context: Context) {
-        uiView.updateOrientation()
-    }
+    func updateUIView(_ uiView: PreviewUIView, context: Context) {}
 }
 
 final class PreviewUIView: UIView {
     var session: AVCaptureSession? {
         didSet {
             (layer as? AVCaptureVideoPreviewLayer)?.session = session
-            updateOrientation()
         }
     }
 
@@ -27,37 +24,10 @@ final class PreviewUIView: UIView {
         AVCaptureVideoPreviewLayer.self
     }
 
-    private var previewLayer: AVCaptureVideoPreviewLayer? {
-        layer as? AVCaptureVideoPreviewLayer
-    }
-
     override func layoutSubviews() {
         super.layoutSubviews()
-        previewLayer?.videoGravity = .resizeAspectFill
-        updateOrientation()
-    }
-
-    func updateOrientation() {
-        guard let connection = previewLayer?.connection else { return }
-
-        // Use the window scene's interface orientation for reliable rotation
-        if let windowScene = window?.windowScene {
-            let orientation = windowScene.interfaceOrientation
-            let angle: CGFloat
-            switch orientation {
-            case .landscapeRight:
-                angle = 0
-            case .landscapeLeft:
-                angle = 180
-            case .portraitUpsideDown:
-                angle = 270
-            default: // .portrait
-                angle = 90
-            }
-
-            if connection.isVideoRotationAngleSupported(angle) {
-                connection.videoRotationAngle = angle
-            }
+        if let previewLayer = layer as? AVCaptureVideoPreviewLayer {
+            previewLayer.videoGravity = .resizeAspectFill
         }
     }
 }

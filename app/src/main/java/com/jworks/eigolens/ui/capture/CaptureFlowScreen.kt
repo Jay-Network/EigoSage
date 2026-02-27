@@ -36,6 +36,8 @@ import com.google.accompanist.permissions.shouldShowRationale
 fun CaptureFlowScreen(
     onSettingsClick: () -> Unit,
     onGalleryClick: () -> Unit,
+    onHistoryClick: () -> Unit = {},
+    onFeedbackClick: () -> Unit = {},
     viewModel: CaptureFlowViewModel = hiltViewModel()
 ) {
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
@@ -44,6 +46,8 @@ fun CaptureFlowScreen(
         CaptureFlowContent(
             onSettingsClick = onSettingsClick,
             onGalleryClick = onGalleryClick,
+            onHistoryClick = onHistoryClick,
+            onFeedbackClick = onFeedbackClick,
             viewModel = viewModel
         )
     } else {
@@ -87,6 +91,8 @@ private fun CameraPermissionRequest(
 private fun CaptureFlowContent(
     onSettingsClick: () -> Unit,
     onGalleryClick: () -> Unit,
+    onHistoryClick: () -> Unit,
+    onFeedbackClick: () -> Unit,
     viewModel: CaptureFlowViewModel
 ) {
     val captureState by viewModel.captureState.collectAsState()
@@ -107,6 +113,13 @@ private fun CaptureFlowContent(
     Box(modifier = Modifier.fillMaxSize()) {
         when (val state = captureState) {
             is CaptureState.Camera -> {
+                val cefrThreshold by viewModel.cefrThreshold.collectAsState()
+                val coinBalance by viewModel.coinBalance.collectAsState()
+                val liveEnrichedWords by viewModel.liveEnrichedWords.collectAsState()
+                val liveImageSize by viewModel.liveImageSize.collectAsState()
+                val liveRotationDegrees by viewModel.liveRotationDegrees.collectAsState()
+                val showIpaOverlay by viewModel.showIpaOverlay.collectAsState()
+                val ipaFontScale by viewModel.ipaFontScale.collectAsState()
                 CameraPreviewMode(
                     isFlashOn = viewModel.isFlashOn.collectAsState().value,
                     onCapture = { bitmap -> viewModel.onPhotoCapture(bitmap) },
@@ -116,7 +129,20 @@ private fun CaptureFlowContent(
                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                         )
                     },
-                    onSettingsClick = onSettingsClick
+                    onSettingsClick = onSettingsClick,
+                    onHistoryClick = onHistoryClick,
+                    onFeedbackClick = onFeedbackClick,
+                    cefrThreshold = cefrThreshold,
+                    onCefrThresholdChange = { viewModel.setCefrThreshold(it) },
+                    coinBalance = coinBalance,
+                    liveEnrichedWords = liveEnrichedWords,
+                    liveImageWidth = liveImageSize.width,
+                    liveImageHeight = liveImageSize.height,
+                    liveRotationDegrees = liveRotationDegrees,
+                    showIpaOverlay = showIpaOverlay,
+                    ipaFontScale = ipaFontScale,
+                    onIpaToggle = { viewModel.toggleIpaOverlay() },
+                    onFrameAvailable = { imageProxy -> viewModel.processLiveFrame(imageProxy) }
                 )
             }
 

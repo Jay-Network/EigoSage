@@ -7,7 +7,7 @@ import com.jworks.eigolens.data.local.entities.DefinitionEntry
 
 @Database(
     entities = [WordEntry::class, DefinitionEntry::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class WordNetDatabase : RoomDatabase() {

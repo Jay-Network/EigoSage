@@ -33,4 +33,16 @@ interface WordNetDao {
 
     @Query("SELECT * FROM words ORDER BY frequency ASC LIMIT :limit")
     suspend fun getTopFrequentWords(limit: Int = 100): List<WordEntry>
+
+    @Query("SELECT word_id, word, lemma, frequency, phonetic, cefr_level FROM words WHERE word IN (:words)")
+    suspend fun getWordMetadataBatch(words: List<String>): List<WordEntry>
+
+    @Query("""
+        SELECT d.meaning FROM definitions d
+        JOIN words w ON d.word_id = w.word_id
+        WHERE w.word = :word
+        ORDER BY d.def_id
+        LIMIT 1
+    """)
+    suspend fun getFirstMeaning(word: String): String?
 }

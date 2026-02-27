@@ -20,22 +20,20 @@ object OcrTextMerger {
         val mlKitTexts = mlKitResult.texts
         if (mlKitTexts.isEmpty() || geminiLines.isEmpty()) return mlKitResult
 
+        // Only attempt line-level merge when line counts match.
+        // Mismatched line counts cause cascading word-to-box misalignment.
+        if (mlKitTexts.size != geminiLines.size) {
+            Log.d(TAG, "Line count mismatch (ML Kit: ${mlKitTexts.size}, Gemini: ${geminiLines.size}), keeping ML Kit result")
+            return mlKitResult
+        }
+
         val corrected = mutableListOf<DetectedText>()
-        var geminiIdx = 0
 
-        for (mlLine in mlKitTexts) {
-            if (geminiIdx >= geminiLines.size) {
-                // No more Gemini lines — keep ML Kit's original
-                corrected.add(mlLine)
-                continue
-            }
-
-            val geminiLine = geminiLines[geminiIdx]
+        for (i in mlKitTexts.indices) {
+            val mlLine = mlKitTexts[i]
+            val geminiLine = geminiLines[i]
             val geminiWords = geminiLine.split(Regex("\\s+")).filter { it.isNotBlank() }
-            geminiIdx++
 
-            // If Gemini line is very different length, it might span multiple ML Kit lines
-            // or ML Kit split one visual line into multiple. Use simple 1:1 for now.
             val mergedElements = mergeWords(mlLine.elements, geminiWords)
 
             corrected.add(
@@ -61,62 +59,21 @@ object OcrTextMerger {
         if (mlKitElements.isEmpty()) return mlKitElements
         if (geminiWords.isEmpty()) return mlKitElements
 
-        val result = mutableListOf<TextElement>()
-
-        when {
-            // Same word count — direct 1:1 mapping (most common case)
-            mlKitElements.size == geminiWords.size -> {
-                for (i in mlKitElements.indices) {
-                    result.add(
-                        mlKitElements[i].copy(
-                            text = geminiWords[i],
-                            isWord = geminiWords[i].any { it.isLetter() }
-                        )
-                    )
-                }
-            }
-
-            // Gemini has fewer words — ML Kit may have split words
-            // Map what we can, keep ML Kit for the rest
-            geminiWords.size < mlKitElements.size -> {
-                val ratio = mlKitElements.size.toFloat() / geminiWords.size
-                for (i in geminiWords.indices) {
-                    // Map each Gemini word to the closest ML Kit element
-                    val mlIdx = (i * ratio).toInt().coerceIn(0, mlKitElements.lastIndex)
-                    result.add(
-                        mlKitElements[mlIdx].copy(
-                            text = geminiWords[i],
-                            isWord = geminiWords[i].any { it.isLetter() }
-                        )
-                    )
-                }
-                // Add remaining ML Kit elements that weren't mapped
-                val mappedIndices = (geminiWords.indices).map { (it * ratio).toInt().coerceIn(0, mlKitElements.lastIndex) }.toSet()
-                for (i in mlKitElements.indices) {
-                    if (i !in mappedIndices) {
-                        result.add(mlKitElements[i])
-                    }
-                }
-                // Sort by bounds position (left to right)
-                result.sortBy { it.bounds?.left ?: 0 }
-            }
-
-            // Gemini has more words — ML Kit may have merged words
-            // Map 1:1 for available boxes, drop extra Gemini words (no box for them)
-            else -> {
-                for (i in mlKitElements.indices) {
-                    val geminiIdx = (i.toFloat() / mlKitElements.size * geminiWords.size).toInt()
-                        .coerceIn(0, geminiWords.lastIndex)
-                    result.add(
-                        mlKitElements[i].copy(
-                            text = geminiWords[geminiIdx],
-                            isWord = geminiWords[geminiIdx].any { it.isLetter() }
-                        )
-                    )
-                }
+        // Only replace text when word counts match exactly.
+        // Mismatched counts caused words to be assigned to wrong bounding boxes,
+        // resulting in taps looking up the wrong word.
+        if (mlKitElements.size == geminiWords.size) {
+            return mlKitElements.mapIndexed { i, element ->
+                element.copy(
+                    text = geminiWords[i],
+                    isWord = geminiWords[i].any { it.isLetter() }
+                )
             }
         }
 
-        return result
+        // Word count mismatch — keep ML Kit's original text to preserve
+        // accurate word-to-bounding-box mapping
+        Log.d(TAG, "Word count mismatch (ML Kit: ${mlKitElements.size}, Gemini: ${geminiWords.size}), keeping ML Kit text")
+        return mlKitElements
     }
 }

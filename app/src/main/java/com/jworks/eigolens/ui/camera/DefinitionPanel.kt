@@ -39,9 +39,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
@@ -71,9 +73,11 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import com.jworks.eigolens.data.ai.ContextualInsight
+import com.jworks.eigolens.domain.models.CefrLevel
 import com.jworks.eigolens.domain.models.Definition
 import com.jworks.eigolens.domain.models.Meaning
 import com.jworks.eigolens.domain.models.PartOfSpeech
+import com.jworks.eigolens.domain.models.color
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -82,7 +86,10 @@ fun DefinitionPanel(
     definition: Definition,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
-    contextualInsight: ContextualInsight? = null
+    contextualInsight: ContextualInsight? = null,
+    isBookmarked: Boolean = false,
+    onToggleBookmark: () -> Unit = {},
+    onBackToWords: () -> Unit = {}
 ) {
     val slideOffset = remember { Animatable(40f) }
     val alpha = remember { Animatable(0f) }
@@ -119,7 +126,11 @@ fun DefinitionPanel(
                 word = definition.word,
                 lemma = definition.lemma,
                 frequency = definition.frequency,
-                onDismiss = onDismiss
+                phonetic = definition.phonetic,
+                cefrLevel = CefrLevel.fromString(definition.cefrLevel),
+                isBookmarked = isBookmarked,
+                onToggleBookmark = onToggleBookmark,
+                onBackToWords = onBackToWords
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -144,7 +155,6 @@ fun DefinitionPanel(
             DefinitionList(meanings = definition.meanings)
         }
 
-        // TODO: Add-to-Vocabulary feature (requires persistence layer - deferred to v0.2.0)
     }
 }
 
@@ -155,13 +165,30 @@ private fun WordHeader(
     word: String,
     lemma: String,
     frequency: Int?,
-    onDismiss: () -> Unit
+    phonetic: String? = null,
+    cefrLevel: CefrLevel? = null,
+    isBookmarked: Boolean,
+    onToggleBookmark: () -> Unit,
+    onBackToWords: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top
     ) {
+        // Back arrow to return to difficult words list
+        IconButton(
+            onClick = onBackToWords,
+            modifier = Modifier.size(32.dp)
+        ) {
+            Icon(
+                Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back to word list",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(4.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = word,
@@ -169,6 +196,15 @@ private fun WordHeader(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
+            if (phonetic != null) {
+                Text(
+                    text = phonetic,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontStyle = FontStyle.Italic,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 1.dp)
+                )
+            }
             if (lemma != word) {
                 Text(
                     text = "base: $lemma",
@@ -180,16 +216,19 @@ private fun WordHeader(
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
+            cefrLevel?.let { CefrBadge(it) }
+            Spacer(modifier = Modifier.width(4.dp))
             frequency?.let { FrequencyBadge(it) }
             Spacer(modifier = Modifier.width(4.dp))
             IconButton(
-                onClick = onDismiss,
+                onClick = onToggleBookmark,
                 modifier = Modifier.size(32.dp)
             ) {
                 Icon(
-                    Icons.Default.Close,
-                    contentDescription = "Close",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    if (isBookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
+                    contentDescription = if (isBookmarked) "Remove bookmark" else "Bookmark word",
+                    tint = if (isBookmarked) MaterialTheme.colorScheme.primary
+                           else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -218,6 +257,29 @@ private fun FrequencyBadge(frequency: Int) {
             text = label,
             style = MaterialTheme.typography.labelSmall,
             color = color,
+            fontWeight = FontWeight.Bold,
+            fontSize = 10.sp
+        )
+    }
+}
+
+@Composable
+private fun CefrBadge(level: CefrLevel) {
+    val badgeColor = level.color().takeIf { it != Color.Transparent }
+        ?: MaterialTheme.colorScheme.outline
+
+    Box(
+        modifier = Modifier
+            .background(
+                color = badgeColor.copy(alpha = 0.15f),
+                shape = RoundedCornerShape(12.dp)
+            )
+            .padding(horizontal = 10.dp, vertical = 4.dp)
+    ) {
+        Text(
+            text = level.name,
+            style = MaterialTheme.typography.labelSmall,
+            color = badgeColor,
             fontWeight = FontWeight.Bold,
             fontSize = 10.sp
         )

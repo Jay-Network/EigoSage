@@ -2,6 +2,26 @@
 
 All notable changes to EigoLens will be documented in this file.
 
+## [0.4.0] - 2026-02-24 (Phase C - Word History & Bookmarks)
+
+### Added
+- **Word history tracking**: All word lookups and AI analyses are automatically recorded with timestamps and scope level
+- **Bookmark words**: Tap the bookmark icon in the definition panel header to save words for later review
+- **History screen**: New screen accessible from camera view with two tabs:
+  - **Recent**: Chronological lookup history with scope badges and relative timestamps
+  - **Saved**: Bookmarked words with definitions, context snippets, and delete option
+- **Separate user database**: `eigolens_user.db` for user data, keeping `wordnet.db` read-only
+- **HistoryRepository**: Centralized data access for lookup history and bookmarks
+- **HistoryViewModel**: Dedicated ViewModel for the history screen
+- **History access button**: MenuBook icon in camera preview (below settings)
+
+### Changed
+- **DefinitionPanel**: WordHeader now includes bookmark toggle icon (filled/outlined)
+- **CaptureFlowViewModel**: Injects HistoryRepository, records lookups on success, exposes bookmark state
+- **DatabaseModule**: Provides UserDatabase, HistoryDao, and BookmarkDao via Hilt
+- **CameraPreviewMode**: Settings + History buttons grouped in a Column
+- Version bumped to 0.4.0
+
 ## [0.3.1] - 2026-02-24 (Phase B+ - UI Polish & Interaction Modes)
 
 ### Added

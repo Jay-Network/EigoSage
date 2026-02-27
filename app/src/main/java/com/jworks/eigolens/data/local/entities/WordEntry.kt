@@ -26,7 +26,13 @@ data class WordEntry(
     val lemma: String,
 
     @ColumnInfo(name = "frequency", defaultValue = "999999")
-    val frequency: Int? = 999999
+    val frequency: Int? = 999999,
+
+    @ColumnInfo(name = "phonetic")
+    val phonetic: String? = null,
+
+    @ColumnInfo(name = "cefr_level")
+    val cefrLevel: String? = null
 )
 
 @Entity(

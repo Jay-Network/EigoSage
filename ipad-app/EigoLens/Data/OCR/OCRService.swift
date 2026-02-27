@@ -13,7 +13,7 @@ enum OCRError: Error, LocalizedError {
     }
 }
 
-final class OCRService: @unchecked Sendable {
+final class OCRService {
     func recognizeText(in image: UIImage) async throws -> OCRResult {
         guard let cgImage = image.cgImage else {
             throw OCRError.invalidImage
