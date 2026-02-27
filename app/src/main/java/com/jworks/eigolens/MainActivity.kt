@@ -22,6 +22,7 @@ import com.jworks.eigolens.ui.feedback.FeedbackDialog
 import com.jworks.eigolens.ui.feedback.FeedbackViewModel
 import com.jworks.eigolens.ui.gallery.GalleryImportScreen
 import com.jworks.eigolens.ui.history.HistoryScreen
+import com.jworks.eigolens.ui.rewards.RewardsScreen
 import com.jworks.eigolens.ui.settings.SettingsScreen
 import com.jworks.eigolens.ui.theme.EigoLensTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -71,12 +72,20 @@ class MainActivity : ComponentActivity() {
                                     onSettingsClick = { navController.navigate("settings") },
                                     onGalleryClick = { navController.navigate("gallery") },
                                     onHistoryClick = { navController.navigate("history") },
-                                    onFeedbackClick = { feedbackViewModel.openDialog() }
+                                    onFeedbackClick = { feedbackViewModel.openDialog() },
+                                    onRewardsClick = { navController.navigate("rewards") }
                                 )
                             }
 
                             composable("settings") {
                                 SettingsScreen(
+                                    onBackClick = { navController.popBackStack() },
+                                    onRewardsClick = { navController.navigate("rewards") }
+                                )
+                            }
+
+                            composable("rewards") {
+                                RewardsScreen(
                                     onBackClick = { navController.popBackStack() }
                                 )
                             }

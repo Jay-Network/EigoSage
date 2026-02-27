@@ -10,6 +10,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -67,6 +68,7 @@ fun CameraPreviewMode(
     onSettingsClick: () -> Unit,
     onHistoryClick: () -> Unit = {},
     onFeedbackClick: () -> Unit = {},
+    onRewardsClick: () -> Unit = {},
     cefrThreshold: CefrLevel = CefrLevel.B2,
     onCefrThresholdChange: (CefrLevel) -> Unit = {},
     coinBalance: Int? = null,
@@ -194,10 +196,11 @@ fun CameraPreviewMode(
                 .padding(16.dp),
             horizontalAlignment = Alignment.End
         ) {
-            // Coin balance chip
+            // Coin balance chip (tappable → Rewards)
             if (coinBalance != null) {
                 Row(
                     modifier = Modifier
+                        .clickable { onRewardsClick() }
                         .background(Color(0xFFFFD700).copy(alpha = 0.85f), RoundedCornerShape(16.dp))
                         .padding(horizontal = 10.dp, vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically

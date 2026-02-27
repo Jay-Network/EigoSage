@@ -53,6 +53,13 @@ data class CapInfo(
     @SerialName("partial_award") val partialAward: Boolean = false
 )
 
+@Serializable
+data class JCoinSpendResponse(
+    @SerialName("transaction_id") val transactionId: String = "",
+    @SerialName("amount_spent") val amountSpent: Int = 0,
+    @SerialName("balance_after_coins") val newBalance: Double = 0.0
+)
+
 @Singleton
 class JCoinClient @Inject constructor(
     private val supabaseClient: SupabaseClient
@@ -90,6 +97,35 @@ class JCoinClient @Inject constructor(
             Result.success(json.decodeFromString<JCoinBalance>(data.toString()))
         } catch (e: Exception) {
             Log.w(TAG, "Balance fetch failed", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun spend(
+        accessToken: String? = null,
+        itemDescription: String,
+        amount: Int,
+        metadata: Map<String, String> = emptyMap()
+    ): Result<JCoinSpendResponse> {
+        return try {
+            val response = supabaseClient.functions.invoke(
+                function = "jcoin-unified-spend",
+                headers = buildHeaders(accessToken),
+                body = buildJsonObject {
+                    put("source_business", SOURCE_BUSINESS)
+                    put("mode", "direct")
+                    put("item_description", itemDescription)
+                    put("amount", amount)
+                    put("metadata", buildJsonObject {
+                        metadata.forEach { (k, v) -> put(k, v) }
+                    })
+                }
+            )
+            val body = response.body<String>()
+            val data = unwrapData(body)
+            Result.success(json.decodeFromString<JCoinSpendResponse>(data.toString()))
+        } catch (e: Exception) {
+            Log.w(TAG, "Spend failed for item=$itemDescription", e)
             Result.failure(e)
         }
     }

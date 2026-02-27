@@ -38,6 +38,7 @@ fun CaptureFlowScreen(
     onGalleryClick: () -> Unit,
     onHistoryClick: () -> Unit = {},
     onFeedbackClick: () -> Unit = {},
+    onRewardsClick: () -> Unit = {},
     viewModel: CaptureFlowViewModel = hiltViewModel()
 ) {
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
@@ -48,6 +49,7 @@ fun CaptureFlowScreen(
             onGalleryClick = onGalleryClick,
             onHistoryClick = onHistoryClick,
             onFeedbackClick = onFeedbackClick,
+            onRewardsClick = onRewardsClick,
             viewModel = viewModel
         )
     } else {
@@ -93,6 +95,7 @@ private fun CaptureFlowContent(
     onGalleryClick: () -> Unit,
     onHistoryClick: () -> Unit,
     onFeedbackClick: () -> Unit,
+    onRewardsClick: () -> Unit,
     viewModel: CaptureFlowViewModel
 ) {
     val captureState by viewModel.captureState.collectAsState()
@@ -132,6 +135,7 @@ private fun CaptureFlowContent(
                     onSettingsClick = onSettingsClick,
                     onHistoryClick = onHistoryClick,
                     onFeedbackClick = onFeedbackClick,
+                    onRewardsClick = onRewardsClick,
                     cefrThreshold = cefrThreshold,
                     onCefrThresholdChange = { viewModel.setCefrThreshold(it) },
                     coinBalance = coinBalance,

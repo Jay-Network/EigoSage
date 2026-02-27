@@ -15,6 +15,7 @@ import com.jworks.eigolens.data.ai.OcrTextMerger
 import com.jworks.eigolens.data.jcoin.DeviceAuthRepository
 import com.jworks.eigolens.data.jcoin.JCoinClient
 import com.jworks.eigolens.data.jcoin.JCoinEarnRules
+import com.jworks.eigolens.data.jcoin.JCoinSpendRules
 import com.jworks.eigolens.data.repository.DefinitionRepository
 import com.jworks.eigolens.data.repository.HistoryRepository
 import com.jworks.eigolens.data.repository.WordEnrichmentRepository
@@ -83,6 +84,7 @@ class CaptureFlowViewModel @Inject constructor(
     private val wordEnrichmentRepository: WordEnrichmentRepository,
     private val jCoinClient: JCoinClient,
     private val jCoinEarnRules: JCoinEarnRules,
+    private val jCoinSpendRules: JCoinSpendRules,
     private val deviceAuthRepository: DeviceAuthRepository,
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
@@ -480,6 +482,28 @@ class CaptureFlowViewModel @Inject constructor(
         _panelState.value = PanelState.AiLoading(scopeLevel, selectedText, metrics)
 
         viewModelScope.launch {
+            // Gate: check free quota, then coin balance
+            val ctx = application.applicationContext
+            if (!jCoinSpendRules.checkFreeAiAnalysis(ctx)) {
+                // Free quota exhausted — check coin balance
+                val balance = _coinBalance.value ?: 0
+                if (balance < 8) {
+                    _panelState.value = PanelState.Error(
+                        "Not enough J Coins (need 8, have $balance). Visit the Coin Shop to earn more!"
+                    )
+                    return@launch
+                }
+                // Deduct coins
+                val token = deviceAuthRepository.getAccessToken()
+                jCoinClient.spend(token, "ai_deep_analysis", 8)
+                    .onSuccess { _coinBalance.value = it.newBalance.toInt() }
+                    .onFailure {
+                        _panelState.value = PanelState.Error("Coin spend failed: ${it.message}")
+                        return@launch
+                    }
+            }
+            jCoinSpendRules.consumeFreeAiAnalysis(ctx)
+
             val context = AnalysisContext(
                 selectedText = selectedText,
                 fullSnapshotText = fullText,

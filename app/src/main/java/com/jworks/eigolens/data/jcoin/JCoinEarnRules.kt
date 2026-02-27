@@ -74,7 +74,17 @@ class JCoinEarnRules @Inject constructor() {
             val yesterday = java.time.LocalDate.now().minusDays(1).toString()
             val lastScanDate = prefs.getString(KEY_LAST_SCAN_DATE, null)
             val currentStreak = prefs.getInt(KEY_STREAK_DAYS, 0)
-            val newStreak = if (lastScanDate == yesterday) currentStreak + 1 else 1
+            val newStreak = if (lastScanDate == yesterday) {
+                currentStreak + 1
+            } else {
+                // Streak would break — try consuming a streak freeze
+                val spendRules = JCoinSpendRules()
+                if (currentStreak > 0 && spendRules.consumeStreakFreeze(context)) {
+                    currentStreak // preserve streak
+                } else {
+                    1 // reset
+                }
+            }
 
             prefs.edit()
                 .putString(KEY_DATE, today)
