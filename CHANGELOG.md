@@ -12,7 +12,11 @@ All notable changes to EigoSage will be documented in this file.
 - EigoQuest cross-app transfer sourceApp updated
 - All docs updated (README, STATUS, CLAUDE.md, store-listing, STORE_READINESS, data-pipeline)
 - Privacy policy URL refs: /eigolens → /eigosage
+- J Coin APP_KEY: updated to new EigoSage-specific key (backend migration)
 - Applied vMAJOR.MINOR.PATCH versioning standard
+
+### Added
+- VERSION file (single source of truth for semver)
 
 ## v0.5.0 (2026-03-01) - In-App AI Chat + Phase E
 
