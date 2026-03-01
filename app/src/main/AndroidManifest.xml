@@ -13,19 +13,19 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:name=".EigoLensApplication"
+        android:name=".EigoSageApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.EigoLens">
+        android:theme="@style/Theme.EigoSage">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:screenOrientation="unspecified"
-            android:theme="@style/Theme.EigoLens">
+            android:theme="@style/Theme.EigoSage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

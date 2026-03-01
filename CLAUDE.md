@@ -1,6 +1,6 @@
-# EigoLens - Claude Code Agent Instructions
+# EigoSage - Claude Code Agent Instructions
 
-**Project**: EigoLens - English Text Analyzer with OCR
+**Project**: EigoSage - English Text Analyzer with OCR
 **Owner**: JWorks (Jay's Technology & Manufacturing Business)
 **Created**: 2026-02-08
 **Status**: Initial Setup
@@ -9,7 +9,7 @@
 
 ## Project Overview
 
-EigoLens is a camera-based English text analysis app that provides real-time word definitions, grammar analysis, and reading comprehension assistance. It's the English counterpart to KanjiLens, targeting ESL students and language learners.
+EigoSage is a camera-based English text analysis app that provides real-time word definitions, grammar analysis, and reading comprehension assistance. It's the English counterpart to KanjiLens, targeting ESL students and language learners.
 
 **Core Value**: Point your camera at any English text and get instant definitions, synonyms, grammar explanations, and reading level analysis.
 
@@ -74,7 +74,7 @@ EigoLens is a camera-based English text analysis app that provides real-time wor
 ~/Data_ubuntu/GitHub/Jay-Network/apps/EigoLens/
 ├── app/                   # Main Android module
 │   ├── src/main/
-│   │   ├── java/com/jworks/eigolens/
+│   │   ├── java/com/jworks/eigosage/
 │   │   │   ├── MainActivity.kt
 │   │   │   ├── domain/    # Business logic
 │   │   │   ├── data/      # Data layer
@@ -132,6 +132,26 @@ cd ~/Data_ubuntu/GitHub/Jay-Network/apps/EigoLens/
 
 ---
 
+## Versioning (MANDATORY)
+
+Format: vMAJOR.MINOR.PATCH
+- PATCH (last): Every deployed change
+- MINOR (middle): Major feature addition (resets PATCH)
+- MAJOR (first): Release stage transition (resets MINOR+PATCH)
+  - v0.x.x = Alpha
+  - v1.x.x = Beta
+  - v2.x.x = Store release
+Full spec: ~/1_jworks/A_ai/4_Apps/VERSIONING.md
+
+## App Family Naming
+
+| Suffix | Meaning | Apps |
+|--------|---------|------|
+| **Sage** | Scan + AI dialog | KanjiSage, EigoSage |
+| **Journey** | Mastery + gamification | KanjiJourney, EigoJourney |
+
+---
+
 ## Performance Targets
 
 | Metric | Target | Acceptable |
@@ -146,12 +166,12 @@ cd ~/Data_ubuntu/GitHub/Jay-Network/apps/EigoLens/
 
 ## Sub-Agent Information
 
-**Identity**: [Claude-JWorks | EigoLens-Dev] (jworks:46)
-**Launcher**: `claude-jworks-eigolens`
+**Identity**: [Claude-JWorks | EigoSage-Dev] (jworks:46)
+**Launcher**: `claude-jworks-eigosage`
 **Working Directory**: `/home/takuma/1_jworks/A_ai/4_Apps/EigoLens/`
 **tmux Window**: jworks:46
 
-**Purpose**: Dedicated Android development agent for EigoLens project
+**Purpose**: Dedicated Android development agent for EigoSage project
 
 **Parent Agent**: Window 42 (Apps Division) - `jworks:42`
 
@@ -167,9 +187,9 @@ cd ~/Data_ubuntu/GitHub/Jay-Network/apps/EigoLens/
 
 ### Strategic Value
 
-EigoLens is part of JWorks' **language learning app portfolio**:
-1. Complements VocabQuest (structured learning)
-2. Shares tech foundation with KanjiLens (camera + OCR architecture)
+EigoSage is part of JWorks' **language learning app portfolio**:
+1. Complements EigoJourney (mastery + gamification)
+2. Shares tech foundation with KanjiSage (camera + OCR architecture)
 3. Potential B2B licensing to language schools and universities
 4. Integration with TutoringJay English curriculum
 5. Data insights for reading comprehension strategies

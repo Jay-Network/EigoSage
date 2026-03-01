@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">EigoLens</string>
-    <string name="camera_permission_rationale">EigoLens needs camera access to detect and read English text.</string>
+    <string name="app_name">EigoSage</string>
+    <string name="camera_permission_rationale">EigoSage needs camera access to detect and read English text.</string>
     <string name="camera_permission_denied">Camera permission is required. Please enable it in Settings.</string>
 </resources>

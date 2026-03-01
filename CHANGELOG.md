@@ -1,113 +1,122 @@
 # Changelog
 
-All notable changes to EigoLens will be documented in this file.
+All notable changes to EigoSage will be documented in this file.
 
-## [0.4.0] - 2026-02-24 (Phase C - Word History & Bookmarks)
+## v0.5.1 (2026-03-01) - Rename EigoLens → EigoSage
+
+### Changed
+- Renamed app from EigoLens to EigoSage (package, strings, branding, docs)
+- Package: com.jworks.eigolens → com.jworks.eigosage
+- All SharedPreferences/DataStore/DB identifiers updated (secure prefs, session, settings, jcoin, user DB)
+- J Coin SOURCE_BUSINESS: eigolens → eigosage
+- EigoQuest cross-app transfer sourceApp updated
+- All docs updated (README, STATUS, CLAUDE.md, store-listing, STORE_READINESS, data-pipeline)
+- Privacy policy URL refs: /eigolens → /eigosage
+- Applied vMAJOR.MINOR.PATCH versioning standard
+
+## v0.5.0 (2026-03-01) - In-App AI Chat + Phase E
 
 ### Added
-- **Word history tracking**: All word lookups and AI analyses are automatically recorded with timestamps and scope level
-- **Bookmark words**: Tap the bookmark icon in the definition panel header to save words for later review
-- **History screen**: New screen accessible from camera view with two tabs:
-  - **Recent**: Chronological lookup history with scope badges and relative timestamps
-  - **Saved**: Bookmarked words with definitions, context snippets, and delete option
-- **Separate user database**: `eigolens_user.db` for user data, keeping `wordnet.db` read-only
+- **In-app Gemini chat**: Multi-turn conversational AI replacing Chrome Custom Tab approach
+  - GeminiChatClient: standalone multi-turn Gemini API client (gemini-2.5-flash)
+  - ChatPanel UI: message bubbles, suggestion chips, text input bar
+  - PanelState.Chat + ChatMessage/ChatRole data models
+  - Context-seeded: auto-includes OCR text + current analysis/definition/word list
+  - Entry points: AiAnalysisPanel footer, DefinitionPanel header, DifficultWordsPanel header
+  - In-memory only, resets on new capture
+- **IPA Pronunciation Overlay** (Phase E):
+  - IPA phonetic transcription via CMU Pronouncing Dictionary (ARPAbet→IPA)
+  - CEFR difficulty detection via Brown Corpus frequency ranks
+  - WordNet DB v2: added phonetic + cefr_level columns
+  - CEFR-colored boxes + IPA text overlay on Canvas
+  - DifficultWordsPanel: auto-shown after capture, CEFR badges, IPA, definitions
+  - CEFR threshold slider (6 discrete stops, persisted)
+  - AiAnalysisPanel: 5th "Words" tab when difficult words exist
+  - DefinitionPanel: IPA + CEFR badge in WordHeader
+- **Word enrichment pipeline**: `data-pipeline/enhance_wordnet.py`
+- **WordEnrichmentRepository**: batch enrichment with LRU cache, lemma fallback
+
+### Removed
+- `androidx.browser:browser` dependency (Chrome Custom Tabs no longer needed)
+
+## v0.4.0 (2026-02-24) - Phase C: Word History & Bookmarks
+
+### Added
+- **Word history tracking**: All lookups and AI analyses recorded with timestamps and scope level
+- **Bookmark words**: Tap bookmark icon in definition panel header to save words
+- **History screen**: New screen with two tabs (Recent lookups + Saved bookmarks)
+- **Separate user database**: `eigosage_user.db` for user data (keeps wordnet.db read-only)
 - **HistoryRepository**: Centralized data access for lookup history and bookmarks
-- **HistoryViewModel**: Dedicated ViewModel for the history screen
-- **History access button**: MenuBook icon in camera preview (below settings)
+- **HistoryViewModel**: Dedicated ViewModel for history screen
+- **History access button**: MenuBook icon in camera preview
+- `material-icons-extended` dependency
 
 ### Changed
-- **DefinitionPanel**: WordHeader now includes bookmark toggle icon (filled/outlined)
-- **CaptureFlowViewModel**: Injects HistoryRepository, records lookups on success, exposes bookmark state
-- **DatabaseModule**: Provides UserDatabase, HistoryDao, and BookmarkDao via Hilt
-- **CameraPreviewMode**: Settings + History buttons grouped in a Column
-- Version bumped to 0.4.0
+- DefinitionPanel: WordHeader includes bookmark toggle icon
+- CaptureFlowViewModel: Injects HistoryRepository, records lookups on success
+- DatabaseModule: Provides UserDatabase, HistoryDao, BookmarkDao via Hilt
 
-## [0.3.1] - 2026-02-24 (Phase B+ - UI Polish & Interaction Modes)
+## v0.3.1 (2026-02-24) - Phase B+: UI Polish & Interaction Modes
 
 ### Added
-- **Long-press sentence analysis**: Long-press any word → AI analyzes the containing sentence (meaning, grammar, vocabulary, tone)
-- **Full-text AI FAB**: Small star FAB in bottom-left triggers AI analysis of all captured text
+- **Long-press sentence analysis**: Long-press word → AI analyzes containing sentence
+- **Full-text AI FAB**: Star FAB triggers AI analysis of all captured text
 - **ScopeLevel.Sentence**: New scope level with dedicated prompt template
-- **Segmented provider selector**: Settings screen has segmented button row to choose preferred AI provider
-- **Card-based key editors**: Settings API keys in cards with explicit Save/Clear buttons and saved status
-- **Full M3 color scheme**: Light/dark theme with indigo primary, teal secondary, amber tertiary
-- **Custom typography**: EigoTypography with consistent scale across all panels
-- **Synonym/antonym chips**: FlowRow of SuggestionChips replacing plain text rows in DefinitionPanel
-- **Sectioned AI panel**: AiAnalysisPanel with sticky header, scrollable section cards, and footer chips
-- **Slide-in animation**: DefinitionPanel slide offset now applied (was animated but unused)
+- **Segmented provider selector**: Settings screen provider toggle
+- **Card-based key editors**: API keys in cards with Save/Clear buttons
+- **Full M3 color scheme**: Indigo primary, teal secondary, amber tertiary (light+dark)
+- **Custom EigoTypography**: Consistent scale across all panels
+- **Synonym/antonym chips**: FlowRow of SuggestionChips in DefinitionPanel
+- **Sectioned AI panel**: Header/LazyColumn/footer architecture
 
 ### Changed
-- All hardcoded colors replaced with MaterialTheme.colorScheme tokens (dark mode ready)
-- AiAnalysisPanel: flat column → header/LazyColumn/footer architecture
-- DefinitionPanel: headlineMedium → headlineSmall for word header
-- Settings: "Tap to save" links → explicit Save/Clear buttons in card layout
-- Panel backgrounds use `surface.copy(alpha = 0.97f)` instead of hardcoded `#F8F9FA`
-- Scope badges: each scope level gets its own M3 color (primary/secondary/tertiary)
-- **OCR overlay readability**: Top gradient scrim (72dp), darker word-count chip (0.7 alpha), labelMedium text
-- **Labeled FABs**: Icon-only SmallFABs → ExtendedFloatingActionButton with "AI Analyze" / "Reading Level" labels
-- **Back button**: Larger 40dp circle with black scrim background for discoverability
-- **Feedback modal**: 20dp padding, wider chip spacing, 48dp CTA button, HorizontalDivider before history section
+- All hardcoded colors → MaterialTheme.colorScheme tokens (dark mode ready)
+- OCR overlay: top gradient scrim (72dp), darker word-count chip
+- Labeled FABs: "AI Analyze" / "Reading Level"
+- Back button: 40dp circle with black scrim
+- Feedback modal: padding, chip spacing, 48dp CTA, HorizontalDivider
 
-## [0.3.0] - 2026-02-24 (Phase B - AI Integration)
+## v0.3.0 (2026-02-24) - Phase B: AI Integration
 
 ### Added
-- **AI phrase analysis**: Circle 2-8 words → AI-powered phrase explanation (meaning, grammar, vocabulary, usage)
-- **AI paragraph analysis**: Circle 9+ words → AI summary, key ideas, vocabulary, tone analysis
-- **Full-text analysis**: `analyzeFullText()` method for complete snapshot AI analysis
-- **Claude provider**: Anthropic API integration (Haiku 4.5, 1024 token max) via Ktor HTTP client
-- **Gemini provider**: Google Gemini API integration (2.0 Flash, temperature 0.3)
-- **AiProviderManager**: Provider registry with automatic fallback (Claude → Gemini)
-- **AiPrompts**: ESL-optimized prompt templates per scope level (Word, Phrase, Paragraph, FullText)
-- **SecureKeyStore**: Encrypted API key storage via Android Keystore + EncryptedSharedPreferences
-- **AiAnalysisPanel**: AI response overlay with scope badges, markdown rendering, timing/token footer
-- **AiLoadingPanel**: Loading spinner with selected text preview and scope badge
-- **SimpleMarkdownText**: Basic markdown renderer (bold, bullets, headings)
-- **GeminiOcrCorrector**: Background Gemini Vision pass to fix ML Kit OCR text errors
-- **OcrTextMerger**: Smart word alignment merging Gemini Vision corrections with ML Kit bounding boxes
-- **Contextual word insights**: Parallel Gemini-powered meaning/POS/note for tapped words
-- **Settings: AI section**: API key inputs for Claude and Gemini with encrypted storage
-- **Settings: Provider status**: Active provider display and available providers list
-- **AiModule**: Hilt DI module for AI providers, HTTP client, SecureKeyStore
-- **security-crypto dependency**: `androidx.security:security-crypto:1.1.0-alpha06`
+- **AI phrase/paragraph analysis**: Circle words for AI-powered explanations
+- **Claude provider**: Anthropic API (Haiku 4.5, 1024 token max) via Ktor
+- **Gemini provider**: Google Gemini API (2.0 Flash, temperature 0.3)
+- **AiProviderManager**: Provider registry with fallback (Claude → Gemini)
+- **AiPrompts**: ESL-optimized prompt templates per scope level
+- **SecureKeyStore**: Encrypted API key storage (Android Keystore + EncryptedSharedPreferences)
+- **AiAnalysisPanel**: AI response with scope badges, markdown, timing/token footer
+- **GeminiOcrCorrector**: Background Gemini Vision pass for OCR error correction
+- **OcrTextMerger**: Smart word alignment for Gemini corrections
+- **Settings: AI section**: API key management with encrypted storage
 
 ### Changed
-- **Scope routing**: 1 word → local WordNet, 2-8 words → AI phrase, 9+ → AI paragraph
-- **CaptureFlowViewModel**: Injected AiProviderManager, added AI loading/analysis panel states
-- **PanelState**: Added `AiLoading` and `AiAnalysis` states
-- **AnnotationMode**: Routes new AI panel states to AiAnalysisPanel/AiLoadingPanel
-- **SettingsViewModel**: Exposes API key management, provider state, dynamic provider registration
-- **Settings screen**: Scrollable, AI section with key inputs, version bumped to 0.2.0
-- **ProcessCameraFrameUseCase**: Background Gemini OCR correction after capture
+- Scope routing: 1 word → local WordNet, 2-8 → AI phrase, 9+ → AI paragraph
 
-## [0.2.0] - 2026-02-24 (Phase A - Tap-to-Define)
+## v0.2.0 (2026-02-24) - Phase A: Tap-to-Define
 
 ### Added
-- **Tap-to-define**: Tap any word on captured text for instant definitions (replaces lasso-only)
-- **WordTapDetector**: Screen-to-image coordinate transform with 20px tolerance for imprecise taps
+- **Tap-to-define**: Tap any word on captured text for instant definitions
+- **WordTapDetector**: Screen-to-image coordinate transform with 20px tolerance
 - **ScopeLevel**: Foundation for progressive analysis (Word, Phrase, Paragraph, FullSnapshot)
-- **Overlay panel**: Draggable results panel over full-screen image (replaces 40/60 split layout)
-- **Pulse highlight**: Blue rounded rect with animation on tapped words
-- **Landscape support**: Panel anchors to right side in landscape orientation
-- **ic_tap / ic_circle drawables**: New icons for interaction mode toggle
-- **Robolectric**: Unit test support for Android classes
-- 6 unit tests for WordTapDetector (roundtrip transforms, tap detection, tolerance, zoom/pan)
+- **Overlay panel**: Draggable results panel over full-screen image
+- **Pulse highlight**: Blue rounded rect animation on tapped words
+- **Landscape support**: Panel anchors to right side
+- **Robolectric**: Unit test support, 6 WordTapDetector tests
 
 ### Changed
-- **InteractionMode**: `VIEW/DRAW` → `TAP/CIRCLE`. TAP is default, CIRCLE for lasso
-- **Two-finger zoom/pan**: Now works in both TAP and CIRCLE modes (was VIEW-only)
-- **Auto-return**: Circle mode auto-switches back to TAP after selection
-- **PanelState**: Unified `LookupState` + `AnalysisMode` into single `PanelState` sealed class
-- **InteractiveImageViewer**: State hoisted to parent, receives interaction mode + callbacks
-- Idle message: "Tap any word to look it up, or switch to circle mode to select phrases"
-- FAB icon: Shows opposite mode (tap icon when in circle, circle icon when in tap)
+- InteractionMode: VIEW/DRAW → TAP/CIRCLE (TAP default)
+- Two-finger zoom/pan works in both TAP and CIRCLE modes
+- Circle mode auto-switches back to TAP after selection
+- PanelState: Unified sealed class (was LookupState + AnalysisMode)
 
 ### Fixed
-- **Room schema validation**: Rebuilt WordNet DB tables with `NOT NULL` on primary keys
-- **Room entity annotations**: Added indices and foreign key to match bundled DB schema
-- **Room identity hash**: Updated to match entity definitions
-- **Nullable frequency**: `WordEntry.frequency` now `Int?` to match DB column
+- Room schema validation (NOT NULL on primary keys)
+- Room entity annotations (indices, foreign keys)
+- Room identity hash matching
+- Nullable frequency column
 
-## [0.1.1] - 2026-02-20
+## v0.1.1 (2026-02-20) - Build Stability & Rebrand
 
 ### Changed
 - Renamed from EnglishLens to EigoLens (full rebrand, package rename)
@@ -126,10 +135,9 @@ All notable changes to EigoLens will be documented in this file.
 - Store readiness checklist
 - Store listing draft
 
-## [0.1.0] - 2026-02-15
+## v0.1.0 (2026-02-15) - Initial Release
 
 ### Added
-- Initial release
 - Camera text capture with CameraX + ML Kit OCR
 - Offline WordNet dictionary (147K words, 207K definitions)
 - Lasso word selection with coordinate transforms

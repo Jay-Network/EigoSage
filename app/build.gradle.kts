@@ -10,11 +10,11 @@ plugins {
 }
 
 android {
-    namespace = "com.jworks.eigolens"
+    namespace = "com.jworks.eigosage"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.jworks.eigolens"
+        applicationId = "com.jworks.eigosage"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -52,9 +52,9 @@ android {
                     load(localPropertiesFile.inputStream())
                 }
             }
-            storeFile = file(localProperties.getProperty("RELEASE_STORE_FILE", "../keystore/eigolens-release.jks"))
+            storeFile = file(localProperties.getProperty("RELEASE_STORE_FILE", "../keystore/eigosage-release.jks"))
             storePassword = localProperties.getProperty("RELEASE_STORE_PASSWORD", "")
-            keyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS", "eigolens")
+            keyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS", "eigosage")
             keyPassword = localProperties.getProperty("RELEASE_KEY_PASSWORD", "")
         }
     }

@@ -1,7 +1,7 @@
-# EigoLens - Google Play Store Listing
+# EigoSage - Google Play Store Listing
 
 ## App Name
-EigoLens
+EigoSage
 
 ## Short Description (80 characters max)
 Tap words for definitions. Circle phrases for AI analysis. Offline + AI powered.
@@ -10,15 +10,15 @@ Tap words for definitions. Circle phrases for AI analysis. Offline + AI powered.
 
 ## Full Description (4000 characters max)
 
-EigoLens turns your camera into a powerful English reading assistant. Capture any text, tap a word, and get instant definitions - all offline, all on-device.
+EigoSage turns your camera into a powerful English reading assistant. Capture any text, tap a word, and get instant definitions - all offline, all on-device.
 
 CORE FEATURES
 
 Tap Any Word for Instant Definitions
-Capture text with your camera, then simply tap any word to look it up. No menus, no typing - just tap. EigoLens includes a comprehensive offline dictionary with over 147,000 words and 207,000 definitions powered by WordNet. Works without internet.
+Capture text with your camera, then simply tap any word to look it up. No menus, no typing - just tap. EigoSage includes a comprehensive offline dictionary with over 147,000 words and 207,000 definitions powered by WordNet. Works without internet.
 
 Circle Phrases for AI-Powered Analysis
-Need to understand a phrase or sentence? Switch to circle mode and draw around multiple words. EigoLens uses AI (powered by Gemini or Claude) to explain meaning, grammar, vocabulary, and usage in context. Circle 2-8 words for phrase analysis, or 9+ words for paragraph-level summaries with key ideas and tone analysis. After selection, you're automatically back in tap mode.
+Need to understand a phrase or sentence? Switch to circle mode and draw around multiple words. EigoSage uses AI (powered by Gemini or Claude) to explain meaning, grammar, vocabulary, and usage in context. Circle 2-8 words for phrase analysis, or 9+ words for paragraph-level summaries with key ideas and tone analysis. After selection, you're automatically back in tap mode.
 
 Full-Screen Image with Overlay Panel
 Your captured text stays full-screen while the definition panel slides up from the bottom. Drag the panel to resize it. Pinch to zoom and pan the image with two fingers - even while in tap mode.
@@ -40,12 +40,12 @@ Understand how difficult a text is with four standard readability formulas:
 Each text gets a difficulty rating from Very Easy to Very Difficult, with the equivalent U.S. grade level and target audience.
 
 Natural Language Processing
-EigoLens includes a built-in NLP pipeline that identifies:
+EigoSage includes a built-in NLP pipeline that identifies:
 - Parts of speech (nouns, verbs, adjectives, adverbs, and more)
 - Named entities (dates, numbers, proper nouns)
 - Root word forms through lemmatization
 
-WHO IS EIGOLENS FOR?
+WHO IS EIGOSAGE FOR?
 
 - ESL/EFL students building vocabulary while reading
 - Language learners understanding real-world English text
@@ -55,7 +55,7 @@ WHO IS EIGOLENS FOR?
 - Parents helping children with English reading
 
 AI-Enhanced OCR
-EigoLens can use Gemini Vision to double-check and correct OCR results in the background, improving accuracy on handwritten or difficult text. Your API key stays encrypted on your device.
+EigoSage can use Gemini Vision to double-check and correct OCR results in the background, improving accuracy on handwritten or difficult text. Your API key stays encrypted on your device.
 
 KEY HIGHLIGHTS
 
@@ -66,7 +66,7 @@ KEY HIGHLIGHTS
 - Natural interaction: Tap words, pinch to zoom, drag to resize - no learning curve
 - Free to use: Core features available without an account, AI features with free Gemini API key
 
-EigoLens is developed by JWorks as part of our language learning toolkit.
+EigoSage is developed by JWorks as part of our language learning toolkit.
 
 ---
 
@@ -78,7 +78,7 @@ Sub-category: Language Learning (if available, otherwise Education)
 english dictionary, text scanner, OCR reader, vocabulary builder, reading level, ESL, English learner, word definitions, text analysis, readability, TOEFL, IELTS
 
 ## Privacy Policy URL
-https://jworks-ai.com/privacy/eigolens
+https://jworks-ai.com/privacy/eigosage
 
 ## Contact Details
 - Developer name: JWorks
@@ -157,7 +157,7 @@ Recommended 8 phone screenshots showing:
 8. **Login Screen** - Clean sign-in with Google, email, and guest options
 
 ## Feature Graphic (1024x500)
-- App name "EigoLens" prominently displayed
+- App name "EigoSage" prominently displayed
 - Visual showing camera viewfinder + text overlay + definition popup
 - Color scheme: Dark background with blue (#2196F3) accents matching app theme
 - Tagline: "Tap. Define. Learn."

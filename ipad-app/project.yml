@@ -1,6 +1,6 @@
 name: EigoLens
 options:
-  bundleIdPrefix: com.jworks.eigolens
+  bundleIdPrefix: com.jworks.eigosage
   deploymentTarget:
     iOS: "17.0"
   xcodeVersion: "15.0"
@@ -34,7 +34,7 @@ targets:
 
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.jworks.eigolens
+        PRODUCT_BUNDLE_IDENTIFIER: com.jworks.eigosage
         INFOPLIST_FILE: EigoLens/Resources/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         TARGETED_DEVICE_FAMILY: "2"  # iPad only
@@ -74,7 +74,7 @@ targets:
 
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.jworks.eigolens.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.jworks.eigosage.tests
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/EigoLens.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/EigoLens"
         BUNDLE_LOADER: "$(TEST_HOST)"
 

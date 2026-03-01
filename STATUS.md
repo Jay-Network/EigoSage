@@ -1,9 +1,9 @@
-# EigoLens Cross-Platform Development Tracker
+# EigoSage Cross-Platform Development Tracker
 
 > **Shared status file** — updated by both jworks:46 (Android) and jworks:61 (iPad).
 > Each agent updates its own column. Check this file before starting work to stay in sync.
 
-**Last updated**: 2026-02-28
+**Last updated**: 2026-03-01
 
 ---
 
@@ -44,7 +44,8 @@
 | **Dark mode** | DONE | DONE |
 | **J Coin integration** | DONE | - |
 | **J Coin Spend Store (rewards)** | DONE | - |
-| **Send to EigoQuest (cross-app)** | DONE | - |
+| **Send to EigoJourney (cross-app)** | DONE | - |
+| **In-app Gemini chat** | DONE | - |
 | **Word enrichment (IPA/CEFR)** | DONE | DONE |
 | **CEFR difficulty filter** | DONE | DONE |
 | **Difficult words panel** | DONE | DONE |
@@ -58,14 +59,14 @@
 ## Current Sprint
 
 ### Android (jworks:46)
-- **Version**: 0.4.0
-- **Current work**: Landscape mode polish, maintenance
+- **Version**: v0.5.1
+- **Current work**: Renamed EigoLens → EigoSage, in-app Gemini chat, IPA/CEFR overlay
 - **Next**: Phase D (spaced repetition, study mode)
 - **Blockers**: None
 
 ### iPad (jworks:61)
 - **Version**: 0.3.0 (Glass UI + Word Enrichment)
-- **Bundle ID**: com.jworks.eigolens (App Store Connect registered)
+- **Bundle ID**: com.jworks.eigosage (App Store Connect registered)
 - **Current work**: Feature parity port — Glass UI, CEFR/IPA, difficult words, feedback all DONE.
 - **Next**: J Coin integration, Google Sign-In, Send to EigoQuest
 - **Blockers**: None (GitHub secrets set, CI/CD working, TestFlight deployed)
@@ -79,7 +80,7 @@
 | OCR engine | ML Kit Text Recognition | Apple Vision (VNRecognizeTextRequest) |
 | Dictionary | Bundled WordNet SQLite | Bundled WordNet SQLite (same DB) |
 | AI networking | OkHttp + manual JSON | URLSession + Codable |
-| Local DB | Room (eigolens_user.db) | SwiftData / Core Data |
+| Local DB | Room (eigosage_user.db) | SwiftData / Core Data |
 | DI | Hilt | Swift environment / manual |
 | UI framework | Jetpack Compose | SwiftUI |
 | Min target | Android 7.0 (API 24) | iPadOS 16+ |

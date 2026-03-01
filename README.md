@@ -1,4 +1,4 @@
-# EigoLens
+# EigoSage
 
 **Camera-based English text analyzer for language learners**
 
@@ -45,7 +45,7 @@ Point your camera at any English text, capture it, then tap any word for instant
 ## Architecture
 
 ```
-app/src/main/java/com/jworks/eigolens/
+app/src/main/java/com/jworks/eigosage/
 ├── data/
 │   ├── ai/             # AI providers (Claude, Gemini), prompts, OCR correction
 │   ├── auth/           # Supabase auth repository
@@ -73,7 +73,7 @@ app/src/main/java/com/jworks/eigolens/
 
 ### Interaction Model
 
-EigoLens uses a **snapshot-first** approach:
+EigoSage uses a **snapshot-first** approach:
 
 1. **Capture**: Take a photo or import from gallery. ML Kit OCR detects all text.
 2. **Tap** (default): Single-tap any word → definition panel slides up. Two-finger zoom/pan works simultaneously.
@@ -105,9 +105,9 @@ AUTH_SUPABASE_URL=https://your-project.supabase.co
 AUTH_SUPABASE_ANON_KEY=your-anon-key
 
 # Signing (required for release builds)
-RELEASE_STORE_FILE=../keystore/eigolens-release.jks
+RELEASE_STORE_FILE=../keystore/eigosage-release.jks
 RELEASE_STORE_PASSWORD=...
-RELEASE_KEY_ALIAS=eigolens
+RELEASE_KEY_ALIAS=eigosage
 RELEASE_KEY_PASSWORD=...
 ```
 

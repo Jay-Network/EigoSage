@@ -1,6 +1,6 @@
-# EigoLens Data Pipeline
+# EigoSage Data Pipeline
 
-Generates the offline WordNet dictionary database (`wordnet.db`) for the EigoLens Android app.
+Generates the offline WordNet dictionary database (`wordnet.db`) for the EigoSage Android app.
 
 ## Quick Start
 

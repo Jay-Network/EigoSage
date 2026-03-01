@@ -3,7 +3,7 @@
 // EigoLens.xcconfig is GITIGNORED
 
 // Bundle ID (must match App Store Connect)
-PRODUCT_BUNDLE_IDENTIFIER = com.jworks.eigolens
+PRODUCT_BUNDLE_IDENTIFIER = com.jworks.eigosage
 
 // Development Team (Apple Developer Team ID)
 DEVELOPMENT_TEAM = YOUR_TEAM_ID

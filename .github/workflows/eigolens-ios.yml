@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 env:
-  BUNDLE_ID: 'com.jworks.eigolens'
+  BUNDLE_ID: 'com.jworks.eigosage'
   SCHEME: 'EigoLens'
 
 jobs:
@@ -41,7 +41,7 @@ jobs:
       - name: Create xcconfig
         run: |
           cat > EigoLens.xcconfig << 'XCCONFIG'
-          PRODUCT_BUNDLE_IDENTIFIER = com.jworks.eigolens
+          PRODUCT_BUNDLE_IDENTIFIER = com.jworks.eigosage
           DEVELOPMENT_TEAM = NONE
           XCCONFIG
 
@@ -123,7 +123,7 @@ jobs:
           EL_SUPABASE_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           cat > EigoLens.xcconfig << XCCONFIG
-          PRODUCT_BUNDLE_IDENTIFIER = com.jworks.eigolens
+          PRODUCT_BUNDLE_IDENTIFIER = com.jworks.eigosage
           DEVELOPMENT_TEAM = ${EL_TEAM_ID}
           GEMINI_API_KEY = ${EL_GEMINI_KEY}
           CLAUDE_API_KEY = ${EL_CLAUDE_KEY}
@@ -236,7 +236,7 @@ jobs:
             <string>Apple Distribution</string>
             <key>provisioningProfiles</key>
             <dict>
-              <key>com.jworks.eigolens</key>
+              <key>com.jworks.eigosage</key>
               <string>${PP_NAME}</string>
             </dict>
           </dict>

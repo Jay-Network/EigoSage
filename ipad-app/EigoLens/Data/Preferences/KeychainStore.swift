@@ -11,7 +11,7 @@ final class KeychainStore {
         static let supabaseUserEmail = "supabase_user_email"
     }
 
-    private let service = "com.jworks.eigolens.apikeys"
+    private let service = "com.jworks.eigosage.apikeys"
 
     func save(key: String, value: String) throws {
         let data = Data(value.utf8)

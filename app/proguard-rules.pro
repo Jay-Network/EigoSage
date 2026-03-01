@@ -1,10 +1,10 @@
-# EigoLens ProGuard Rules
+# EigoSage ProGuard Rules
 
 # ── ML Kit ──
 -keep class com.google.mlkit.** { *; }
 
 # ── Room entities ──
--keep class com.jworks.eigolens.data.local.entities.** { *; }
+-keep class com.jworks.eigosage.data.local.entities.** { *; }
 
 # ── Hilt / Dagger ──
 -keep class dagger.hilt.** { *; }
@@ -46,7 +46,7 @@
 # ── Firebase (graceful when missing) ──
 -keep class com.google.firebase.** { *; }
 -dontwarn com.google.firebase.**
--keep class com.jworks.eigolens.service.FeedbackFCMService { *; }
+-keep class com.jworks.eigosage.service.FeedbackFCMService { *; }
 
 # ── Google Credentials / Sign-In ──
 -keep class androidx.credentials.** { *; }

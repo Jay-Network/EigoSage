@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "EigoLens"
+rootProject.name = "EigoSage"
 include(":app")
