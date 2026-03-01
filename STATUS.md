@@ -48,6 +48,7 @@
 | **Word enrichment (IPA/CEFR)** | DONE | - |
 | **CEFR difficulty filter** | DONE | - |
 | **Difficult words panel** | DONE | - |
+| **Glass UI (translucent cards)** | DONE | - |
 | **Crash safety hardening** | - | DONE |
 
 **Legend**: DONE | SCAFFOLDED (code written, not yet compiled) | IN PROGRESS | - (not started) | N/A
