@@ -7,6 +7,7 @@ struct CaptureScreen: View {
 
     @EnvironmentObject var container: AppContainer
     @StateObject private var viewModel = CaptureViewModel()
+    @StateObject private var feedbackViewModel = FeedbackViewModel()
     @State private var showGalleryPicker = false
 
     var body: some View {
@@ -81,9 +82,14 @@ struct CaptureScreen: View {
                         }
                         .disabled(viewModel.isProcessing)
 
-                        // Spacer for symmetry
-                        Color.clear
-                            .frame(width: 56, height: 56)
+                        // Feedback button
+                        Button(action: { feedbackViewModel.openDialog() }) {
+                            Image(systemName: "envelope.fill")
+                                .font(.title2)
+                                .foregroundStyle(.white)
+                                .frame(width: 56, height: 56)
+                                .background(.ultraThinMaterial, in: Circle())
+                        }
                     }
                     .padding(.bottom, 32)
                 }
@@ -100,9 +106,18 @@ struct CaptureScreen: View {
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
             }
         }
+        .overlay {
+            if feedbackViewModel.isDialogOpen {
+                FeedbackDialog(viewModel: feedbackViewModel)
+            }
+        }
         .navigationBarHidden(true)
         .task {
             viewModel.configure(ocrService: container.ocrService, onCapture: onCapture)
+            feedbackViewModel.configure(repository: container.feedbackRepository)
+            if let email = container.authManager.authState.email {
+                feedbackViewModel.email = email
+            }
             await viewModel.requestPermission()
         }
         .sheet(isPresented: $showGalleryPicker) {

@@ -28,6 +28,9 @@ final class AppContainer: ObservableObject {
     private(set) var historyRepository: HistoryRepository!
     private(set) var keychainStore: KeychainStore!
 
+    // -- Feedback --
+    private(set) var feedbackRepository: FeedbackRepository!
+
     // -- Auth --
     private(set) var authManager: AuthManager!
 
@@ -77,6 +80,12 @@ final class AppContainer: ObservableObject {
 
         // Phase 6: History
         historyRepository = HistoryRepository()
+
+        // Feedback
+        feedbackRepository = FeedbackRepository(
+            baseURL: Configuration.builtInSupabaseUrl,
+            anonKey: Configuration.builtInSupabaseAnonKey
+        )
 
         // Preload common words
         if let repo = definitionRepository {
