@@ -81,7 +81,9 @@ final class OCRService {
                 return buildWordsProportional(rawWords: rawWords, flippedLineBounds: flippedLineBounds, confidence: candidate.confidence)
             }
 
-            let stringRange = Range(range, in: rawText)!
+            guard let stringRange = Range(range, in: rawText) else {
+                return buildWordsProportional(rawWords: rawWords, flippedLineBounds: flippedLineBounds, confidence: candidate.confidence)
+            }
             if let wordBox = try? candidate.boundingBox(for: stringRange) {
                 let visionRect = wordBox.boundingBox
                 let flippedWordBox = CGRect(

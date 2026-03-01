@@ -37,7 +37,9 @@ struct InteractiveImageView: View {
     // MARK: - Image Content
 
     private func imageContent(imageSize: CGSize, containerSize: CGSize) -> some View {
-        let fitScale = min(containerSize.width / imageSize.width, containerSize.height / imageSize.height)
+        let fitScale = (containerSize.width > 0 && containerSize.height > 0)
+            ? min(containerSize.width / imageSize.width, containerSize.height / imageSize.height)
+            : 1.0
         let displaySize = CGSize(width: imageSize.width * fitScale, height: imageSize.height * fitScale)
 
         return ZStack {
@@ -234,14 +236,18 @@ struct InteractiveImageView: View {
         displaySize: CGSize,
         fitScale: CGFloat
     ) -> TapResult? {
-        let originX = (containerSize.width - displaySize.width * scale) / 2 + offset.width
-        let originY = (containerSize.height - displaySize.height * scale) / 2 + offset.height
+        let scaledWidth = displaySize.width * scale
+        let scaledHeight = displaySize.height * scale
+        guard scaledWidth > 0, scaledHeight > 0 else { return nil }
+
+        let originX = (containerSize.width - scaledWidth) / 2 + offset.width
+        let originY = (containerSize.height - scaledHeight) / 2 + offset.height
 
         // Convert screen point to normalized image coordinates
-        let imageX = (screenPoint.x - originX) / (displaySize.width * scale)
-        let imageY = (screenPoint.y - originY) / (displaySize.height * scale)
+        let imageX = (screenPoint.x - originX) / scaledWidth
+        let imageY = (screenPoint.y - originY) / scaledHeight
 
-        let tolerance = Configuration.tapTolerancePoints / (displaySize.width * scale)
+        let tolerance = Configuration.tapTolerancePoints / scaledWidth
 
         var bestResult: TapResult?
         var bestDistance: CGFloat = .greatestFiniteMagnitude
@@ -273,14 +279,18 @@ struct InteractiveImageView: View {
     }
 
     private func findWordsInRect(_ screenRect: CGRect, containerSize: CGSize, displaySize: CGSize) -> [String] {
-        let originX = (containerSize.width - displaySize.width * scale) / 2 + offset.width
-        let originY = (containerSize.height - displaySize.height * scale) / 2 + offset.height
+        let scaledWidth = displaySize.width * scale
+        let scaledHeight = displaySize.height * scale
+        guard scaledWidth > 0, scaledHeight > 0 else { return [] }
+
+        let originX = (containerSize.width - scaledWidth) / 2 + offset.width
+        let originY = (containerSize.height - scaledHeight) / 2 + offset.height
 
         // Convert screen rect to normalized image coordinates
-        let imgX = (screenRect.minX - originX) / (displaySize.width * scale)
-        let imgY = (screenRect.minY - originY) / (displaySize.height * scale)
-        let imgW = screenRect.width / (displaySize.width * scale)
-        let imgH = screenRect.height / (displaySize.height * scale)
+        let imgX = (screenRect.minX - originX) / scaledWidth
+        let imgY = (screenRect.minY - originY) / scaledHeight
+        let imgW = screenRect.width / scaledWidth
+        let imgH = screenRect.height / scaledHeight
         let imageRect = CGRect(x: imgX, y: imgY, width: imgW, height: imgH)
 
         var selectedWords: [(word: String, y: CGFloat, x: CGFloat)] = []

@@ -86,7 +86,11 @@ final class CaptureViewModel: NSObject, ObservableObject {
     }
 
     private func takePhoto() async throws -> UIImage {
-        try await withCheckedThrowingContinuation { continuation in
+        // Cancel any pending continuation before starting a new one
+        photoContinuation?.resume(throwing: CaptureError.sessionNotReady)
+        photoContinuation = nil
+
+        return try await withCheckedThrowingContinuation { continuation in
             self.photoContinuation = continuation
             let settings = AVCapturePhotoSettings()
             if photoOutput.supportedFlashModes.contains(.on) {

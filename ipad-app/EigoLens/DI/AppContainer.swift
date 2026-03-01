@@ -14,9 +14,9 @@ final class AppContainer: ObservableObject {
     private(set) var ocrService: OCRService!
 
     // -- Phase 4: Definition --
-    private(set) var wordNetDatabase: WordNetDatabase!
-    private(set) var lemmatizer: EnglishLemmatizer!
-    private(set) var definitionRepository: DefinitionRepository!
+    private(set) var wordNetDatabase: WordNetDatabase?
+    private(set) var lemmatizer: EnglishLemmatizer?
+    private(set) var definitionRepository: DefinitionRepository?
 
     // -- Phase 5: AI --
     private(set) var aiProviderManager: AiProviderManager!
@@ -31,14 +31,10 @@ final class AppContainer: ObservableObject {
     private(set) var authManager: AuthManager!
 
     init() {
-        do {
-            try initializeServices()
-        } catch {
-            initError = "Failed to initialize: \(error.localizedDescription)"
-        }
+        initializeServices()
     }
 
-    private func initializeServices() throws {
+    private func initializeServices() {
         // Auth (before other services so it starts session restoration early)
         keychainStore = KeychainStore()
         let supabaseClient = SupabaseAuthClient(
@@ -54,9 +50,15 @@ final class AppContainer: ObservableObject {
         ocrService = OCRService()
 
         // Phase 4: WordNet + Definitions
-        wordNetDatabase = try WordNetDatabase.openBundled()
-        lemmatizer = EnglishLemmatizer(db: wordNetDatabase)
-        definitionRepository = DefinitionRepository(db: wordNetDatabase, lemmatizer: lemmatizer)
+        do {
+            let db = try WordNetDatabase.openBundled()
+            wordNetDatabase = db
+            let lem = EnglishLemmatizer(db: db)
+            lemmatizer = lem
+            definitionRepository = DefinitionRepository(db: db, lemmatizer: lem)
+        } catch {
+            print("WordNet init failed (definitions unavailable): \(error.localizedDescription)")
+        }
 
         // Phase 5: AI
         readabilityCalculator = ReadabilityCalculator()
@@ -75,8 +77,10 @@ final class AppContainer: ObservableObject {
         historyRepository = HistoryRepository()
 
         // Preload common words
-        Task {
-            await definitionRepository.preloadCommonWords(count: Configuration.preloadWordCount)
+        if let repo = definitionRepository {
+            Task {
+                await repo.preloadCommonWords(count: Configuration.preloadWordCount)
+            }
         }
     }
 

@@ -81,12 +81,14 @@ final class WordNetDatabase {
         guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return nil }
         sqlite3_bind_text(stmt, 1, (word as NSString).utf8String, -1, nil)
 
-        guard sqlite3_step(stmt) == SQLITE_ROW else { return nil }
+        guard sqlite3_step(stmt) == SQLITE_ROW,
+              let wordPtr = sqlite3_column_text(stmt, 1),
+              let lemmaPtr = sqlite3_column_text(stmt, 2) else { return nil }
 
         return WordRow(
             wordId: Int(sqlite3_column_int(stmt, 0)),
-            word: String(cString: sqlite3_column_text(stmt, 1)),
-            lemma: String(cString: sqlite3_column_text(stmt, 2)),
+            word: String(cString: wordPtr),
+            lemma: String(cString: lemmaPtr),
             frequency: sqlite3_column_type(stmt, 3) == SQLITE_NULL ? nil : Int(sqlite3_column_int(stmt, 3))
         )
     }
@@ -104,7 +106,9 @@ final class WordNetDatabase {
         var defs: [DefinitionRow] = []
         while sqlite3_step(stmt) == SQLITE_ROW {
             let pos = sqlite3_column_type(stmt, 0) == SQLITE_NULL ? nil : String(cString: sqlite3_column_text(stmt, 0))
-            let meaning = String(cString: sqlite3_column_text(stmt, 1))
+            guard sqlite3_column_type(stmt, 1) != SQLITE_NULL,
+                  let meaningPtr = sqlite3_column_text(stmt, 1) else { continue }
+            let meaning = String(cString: meaningPtr)
             let example = sqlite3_column_type(stmt, 2) == SQLITE_NULL ? nil : String(cString: sqlite3_column_text(stmt, 2))
             let synonyms = sqlite3_column_type(stmt, 3) == SQLITE_NULL ? nil : String(cString: sqlite3_column_text(stmt, 3))
             let antonyms = sqlite3_column_type(stmt, 4) == SQLITE_NULL ? nil : String(cString: sqlite3_column_text(stmt, 4))
@@ -125,10 +129,12 @@ final class WordNetDatabase {
 
         var rows: [WordRow] = []
         while sqlite3_step(stmt) == SQLITE_ROW {
+            guard let wordPtr = sqlite3_column_text(stmt, 1),
+                  let lemmaPtr = sqlite3_column_text(stmt, 2) else { continue }
             rows.append(WordRow(
                 wordId: Int(sqlite3_column_int(stmt, 0)),
-                word: String(cString: sqlite3_column_text(stmt, 1)),
-                lemma: String(cString: sqlite3_column_text(stmt, 2)),
+                word: String(cString: wordPtr),
+                lemma: String(cString: lemmaPtr),
                 frequency: sqlite3_column_type(stmt, 3) == SQLITE_NULL ? nil : Int(sqlite3_column_int(stmt, 3))
             ))
         }
