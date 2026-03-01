@@ -22,7 +22,7 @@ object JCoinModule {
     private const val JCOIN_SUPABASE_ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlueWdjcmRoZm1vZXJib3J4ZWhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTQyNDMsImV4cCI6MjA4NTA3MDI0M30.zQEMcvdGoX1Uk1rJRIeJSu1EAzu4XeuxkdnsqNADOGU"
     const val JCOIN_APP_KEY =
-        "532c26a03a18ebe482728ceee49d89a24fe01ac330b604586d7514426ccb4070"
+        "b1d1d811477c7bff6138df04a612ef2b6d2f21851c120249bf3bbfa91c6b77a1"
 
     @Provides
     @Singleton
