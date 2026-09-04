@@ -6,6 +6,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## v0.8.2 (2026-09-04) - Gemini Live Prototype (Protocol Layer)
+
+### Added
+- **`GeminiLiveClient`**: WebSocket client for the Gemini Live API (BidiGenerateContent) — setup/audio-chunk/text-turn message builders and server-event parsing (text delta, audio delta, turnComplete, interrupted), verified against current `ai.google.dev` Live API docs. 13 unit tests.
+- **`ChatPersona.liveVoiceName`**: maps Sage/Lexicon/Tutor personas to Live API voice names (Charon/Kore/Puck) for future voice sessions.
+- Added `ktor-client-okhttp` + `ktor-client-websockets` dependencies (isolated to the Live client — Ktor's Android engine has no WebSocket support, so REST clients are untouched).
+
+Not yet wired to microphone/speaker or the UI — that requires a physical device and is tracked separately in TODO.md.
+
 ## v0.8.1 (2026-06-01) - Gemini Thinking Token Hardening
 
 ### Fixed

@@ -4,6 +4,7 @@
 (none)
 
 ## Recently Completed
+- [x] [@solo] Gemini Live agent prototype — WebSocket protocol layer (setup/audio/text messages, server event parsing), 13 unit tests, docs/gemini-development-log.md updated with confirmed wire format. Audio capture/playback + UI wiring still needs a device (2026-09-04)
 - [x] [@solo] Add 21 unit tests for OcrTextMerger — merge logic, empty inputs, word/line mismatch, isWord flag, metadata preservation (2026-06-21)
 - [x] S-358: Harden Gemini callers against thinking token truncation — thinkingBudget:0 on all 4 call sites, bumped tight token limits (2026-06-01)
 
@@ -48,6 +49,6 @@
 
 ## Backlog
 - [backlog] S1-ES-2: OCR pipeline performance profiling (blocked: requires device testing, sprint P1)
-- [backlog] Gemini Live agent prototype (after Phase D)
+- [backlog] Gemini Live: wire GeminiLiveClient to mic capture (AudioRecord 16kHz) + playback (AudioTrack 24kHz) + RECORD_AUDIO permission + DI/UI (blocked: requires device testing)
 - [backlog] Evaluate Gemini TTS for pronunciation features (report to jworks:9)
 - [backlog] EigoJourney word export integration (coordinate with EigoJourney agent)

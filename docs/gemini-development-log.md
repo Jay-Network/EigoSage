@@ -81,6 +81,27 @@ Features suitable for a standalone Gemini Live agent (voice + camera):
 | **Vocabulary quiz** | Medium | AI asks about words from scanned text — voice Q&A natural |
 | **Reading companion** | High | Adapted from BookSage Live patterns — cross-page memory + personas |
 
+### Prototype Status (2026-09-04)
+
+`GeminiLiveClient` (`data/ai/GeminiLiveClient.kt`) implements the BidiGenerateContent WebSocket
+protocol layer, verified against the current `ai.google.dev/gemini-api/docs/live-api` pages
+(the ADK/`@google/genai` notes above predate this check and were superseded — that SDK is
+JS-only, so EigoSage talks the WebSocket protocol directly via Ktor, matching how the three
+REST clients already work):
+
+- Endpoint: `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent`
+- Model: `gemini-3.1-flash-live-preview` (current Live model name as of this check)
+- Input audio: 16-bit PCM, 16kHz, little-endian, mimeType `audio/pcm;rate=16000`
+- Output audio: 16-bit PCM, 24kHz, little-endian, mimeType `audio/pcm;rate=24000`
+- `ChatPersona.liveVoiceName` maps Sage/Lexicon/Tutor to Charon/Kore/Puck for `speechConfig.voiceConfig.prebuiltVoiceConfig.voiceName`
+- 13 unit tests cover message building (setup/audio chunk/text turn) and server-event parsing (text delta, audio delta, turnComplete, interrupted, setupComplete, malformed input) — `app/src/test/java/com/jworks/eigosage/data/ai/GeminiLiveClientTest.kt`
+- Ktor's Android engine has no WebSocket support, so this client owns a separate OkHttp-based `HttpClient`, isolated from the shared REST client in `AiModule`
+
+**Not done yet** (needs a physical device, can't be verified from this session): microphone
+capture via `AudioRecord`, audio playback via `AudioTrack`, `RECORD_AUDIO` permission, and
+Hilt/UI wiring to an actual chat/voice screen. The client is unwired — nothing calls `connect()`
+outside its own tests.
+
 ### Persona System (adapted from BookSage Live)
 
 | Persona | Role | Voice (proposed) |
@@ -167,8 +188,10 @@ Features suitable for a standalone Gemini Live agent (voice + camera):
 - [x] Auto-bookmark words discussed in chat (v0.7.0)
 - [x] Implement persona mode in GeminiChatClient (Lexicon/Sage/Tutor) (v0.7.0)
 - [ ] Add proactive vocabulary flagging based on user's CEFR level
-- [ ] Create Gemini Live agent prototype (voice + camera reading tutor)
-- [ ] Explore `@google/genai` SDK for Live API WebSocket integration
+- [x] Create Gemini Live agent prototype — protocol layer only (2026-09-04, see below)
+- [x] Explore Live API WebSocket integration — went with a native Ktor/OkHttp WebSocket client instead of `@google/genai` (that SDK is JS-only; EigoSage is Kotlin), see below
+- [ ] Wire `GeminiLiveClient` to microphone capture (AudioRecord, 16kHz PCM) and audio playback (AudioTrack, 24kHz PCM) — needs a device, RECORD_AUDIO permission, and DI/UI wiring
+- [ ] Confirm `Charon`/`Puck` voice names against the current TTS voices list before shipping (only `Kore` verified against live docs so far)
 - [ ] Benchmark Gemini 2.5 Flash vs Pro for text analysis quality
 - [ ] Adapt BookSage Live's cross-page memory pattern for multi-scan sessions
 - [ ] Track BookSage's ADK AutoFlow migration results for persona routing

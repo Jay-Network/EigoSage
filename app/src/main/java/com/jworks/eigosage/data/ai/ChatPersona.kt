@@ -6,19 +6,26 @@ package com.jworks.eigosage.data.ai
  */
 enum class ChatPersona(
     val displayName: String,
-    val shortDescription: String
+    val shortDescription: String,
+    // Gemini Live prebuiltVoiceConfig.voiceName for this persona. Only "Kore" is confirmed
+    // against current Gemini docs (2026-09-04); Charon/Puck carried over from earlier research
+    // in docs/gemini-development-log.md — re-check the TTS voices list before device wiring.
+    val liveVoiceName: String
 ) {
     SAGE(
         displayName = "Sage",
-        shortDescription = "Comprehension & context"
+        shortDescription = "Comprehension & context",
+        liveVoiceName = "Charon"
     ),
     LEXICON(
         displayName = "Lexicon",
-        shortDescription = "Vocabulary & definitions"
+        shortDescription = "Vocabulary & definitions",
+        liveVoiceName = "Kore"
     ),
     TUTOR(
         displayName = "Tutor",
-        shortDescription = "Grammar & practice"
+        shortDescription = "Grammar & practice",
+        liveVoiceName = "Puck"
     );
 
     companion object {

@@ -164,6 +164,11 @@ dependencies {
     implementation("io.ktor:ktor-client-android:2.3.8")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
+    // Gemini Live API (WebSocket) — Android engine has no WebSocket support, so the
+    // Live client uses its own OkHttp-based HttpClient, isolated from the REST clients above.
+    implementation("io.ktor:ktor-client-okhttp:2.3.8")
+    implementation("io.ktor:ktor-client-websockets:2.3.8")
+
     // Firebase Cloud Messaging (plugin disabled until google-services.json added)
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-messaging-ktx")
