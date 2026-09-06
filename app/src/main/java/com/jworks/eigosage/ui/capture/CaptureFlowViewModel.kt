@@ -20,7 +20,7 @@ import com.jworks.eigosage.data.jcoin.JCoinClient
 import com.jworks.eigosage.data.jcoin.JCoinEarnRules
 import com.jworks.eigosage.data.jcoin.JCoinSpendRules
 import com.jworks.eigosage.data.repository.DefinitionRepository
-import com.jworks.eigosage.data.repository.EigoQuestTransferRepository
+import com.jworks.eigosage.data.repository.EigoJourneyTransferRepository
 import com.jworks.eigosage.data.repository.ChatMessageData
 import com.jworks.eigosage.data.repository.ChatRepository
 import com.jworks.eigosage.data.repository.HistoryRepository
@@ -118,7 +118,7 @@ class CaptureFlowViewModel @Inject constructor(
     private val geminiOcrCorrector: GeminiOcrCorrector,
     private val historyRepository: HistoryRepository,
     private val wordEnrichmentRepository: WordEnrichmentRepository,
-    private val eigoQuestTransferRepository: EigoQuestTransferRepository,
+    private val eigoJourneyTransferRepository: EigoJourneyTransferRepository,
     private val jCoinClient: JCoinClient,
     private val jCoinEarnRules: JCoinEarnRules,
     private val jCoinSpendRules: JCoinSpendRules,
@@ -198,11 +198,11 @@ class CaptureFlowViewModel @Inject constructor(
     private val _ipaFontScale = MutableStateFlow(0.6f)
     val ipaFontScale: StateFlow<Float> = _ipaFontScale.asStateFlow()
 
-    private val _isSendingToEigoQuest = MutableStateFlow(false)
-    val isSendingToEigoQuest: StateFlow<Boolean> = _isSendingToEigoQuest.asStateFlow()
+    private val _isSendingToEigoJourney = MutableStateFlow(false)
+    val isSendingToEigoJourney: StateFlow<Boolean> = _isSendingToEigoJourney.asStateFlow()
 
-    private val _eiGoQuestSendResult = MutableStateFlow<String?>(null)
-    val eiGoQuestSendResult: StateFlow<String?> = _eiGoQuestSendResult.asStateFlow()
+    private val _eigoJourneySendResult = MutableStateFlow<String?>(null)
+    val eigoJourneySendResult: StateFlow<String?> = _eigoJourneySendResult.asStateFlow()
 
     private val _isAddingToStudy = MutableStateFlow(false)
     val isAddingToStudy: StateFlow<Boolean> = _isAddingToStudy.asStateFlow()
@@ -711,27 +711,27 @@ class CaptureFlowViewModel @Inject constructor(
         _panelState.value = PanelState.DifficultWordsList(unique, threshold)
     }
 
-    fun sendToEigoQuest() {
-        if (_isSendingToEigoQuest.value) return
+    fun sendToEigoJourney() {
+        if (_isSendingToEigoJourney.value) return
         val threshold = _cefrThreshold.value
         val words = _enrichedWords.value.filter { word ->
             word.cefr != null && word.cefr.ordinalIndex >= threshold.ordinalIndex
         }.distinctBy { it.text }
         if (words.isEmpty()) return
 
-        _isSendingToEigoQuest.value = true
-        _eiGoQuestSendResult.value = null
+        _isSendingToEigoJourney.value = true
+        _eigoJourneySendResult.value = null
         viewModelScope.launch {
-            eigoQuestTransferRepository.sendWords(words)
+            eigoJourneyTransferRepository.sendWords(words)
                 .onSuccess { count ->
-                    _eiGoQuestSendResult.value = "Sent $count words to EigoQuest"
-                    Log.d(TAG, "EigoQuest transfer: $count words sent")
+                    _eigoJourneySendResult.value = "Sent $count words to EigoJourney"
+                    Log.d(TAG, "EigoJourney transfer: $count words sent")
                 }
                 .onFailure { e ->
-                    _eiGoQuestSendResult.value = "Send failed: ${e.message}"
-                    Log.w(TAG, "EigoQuest transfer failed", e)
+                    _eigoJourneySendResult.value = "Send failed: ${e.message}"
+                    Log.w(TAG, "EigoJourney transfer failed", e)
                 }
-            _isSendingToEigoQuest.value = false
+            _isSendingToEigoJourney.value = false
         }
     }
 
@@ -815,7 +815,7 @@ class CaptureFlowViewModel @Inject constructor(
         _liveEnrichedWords.value = emptyList()
         _prevLiveEnriched = emptyList()
         _emptyFrameCount = 0
-        _eiGoQuestSendResult.value = null
+        _eigoJourneySendResult.value = null
         reviewedWordsThisScan.clear()
         allDifficultClearedThisScan = false
     }

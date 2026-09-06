@@ -15,7 +15,7 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 @Serializable
-data class EigoQuestWordRow(
+data class EigoJourneyWordRow(
     @SerialName("batch_id") val batchId: String,
     val word: String,
     val ipa: String? = null,
@@ -23,16 +23,16 @@ data class EigoQuestWordRow(
     @SerialName("source_app") val sourceApp: String = "eigosage",
     @SerialName("sender_device_id") val senderDeviceId: String,
     @SerialName("target_device_id") val targetDeviceId: String,
-    @SerialName("target_app") val targetApp: String = "eigoquest"
+    @SerialName("target_app") val targetApp: String = "eigojourney"
 )
 
 @Singleton
-class EigoQuestTransferRepository @Inject constructor(
+class EigoJourneyTransferRepository @Inject constructor(
     @Named("jcoin") private val supabaseClient: SupabaseClient,
     @ApplicationContext private val context: Context
 ) {
     companion object {
-        private const val TAG = "EQTransfer"
+        private const val TAG = "EJTransfer"
         private const val TABLE = "eq_received_words"
     }
 
@@ -49,14 +49,14 @@ class EigoQuestTransferRepository @Inject constructor(
 
             val rows = words.mapNotNull { word ->
                 val cefr = word.cefr ?: return@mapNotNull null
-                EigoQuestWordRow(
+                EigoJourneyWordRow(
                     batchId = batchId,
                     word = word.text,
                     ipa = word.ipa,
                     cefrLevel = cefr.name,
                     senderDeviceId = deviceId,
                     targetDeviceId = deviceId, // same device
-                    targetApp = "eigoquest"
+                    targetApp = "eigojourney"
                 )
             }.distinctBy { it.word }
 
@@ -67,7 +67,7 @@ class EigoQuestTransferRepository @Inject constructor(
                 onConflict = "word,sender_device_id"
             )
 
-            Log.d(TAG, "Sent ${rows.size} words to EigoQuest (batch=$batchId, device=$deviceId)")
+            Log.d(TAG, "Sent ${rows.size} words to EigoJourney (batch=$batchId, device=$deviceId)")
             Result.success(rows.size)
         } catch (e: Exception) {
             Log.w(TAG, "Transfer failed", e)

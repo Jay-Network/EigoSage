@@ -6,6 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## v0.8.3 (2026-09-06) - Fix Broken "Send to EigoQuest" Word Export
+
+### Fixed
+- **Stale pre-rename `target_app`**: The "Send to EigoJourney" difficult-words export (shipped as "Send to EigoQuest," commit f1fd6aa era) wrote `target_app: "eigoquest"` to the shared `eq_received_words` Supabase table. EigoJourney's sync worker filters on `target_app='eigojourney'`, so every send silently succeeded (row inserted, UI showed "Sent N words") but was never picked up — confirmed against EigoJourney's own code by jworks:45. Renamed `EigoQuestTransferRepository` → `EigoJourneyTransferRepository`, fixed the `target_app` default, and updated all UI text/callback names across `CaptureFlowViewModel`, `AnnotationMode`, and `DifficultWordsPanel` to match.
+- Not live-device-verified — needs both apps installed on one real Android phone to exercise the actual 15-minute pull cycle.
+
 ## v0.8.2 (2026-09-04) - Gemini Live Prototype (Protocol Layer)
 
 ### Added

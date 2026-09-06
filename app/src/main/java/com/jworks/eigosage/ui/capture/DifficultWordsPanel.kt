@@ -59,9 +59,9 @@ fun DifficultWordsPanel(
     onAiAnalyze: () -> Unit = {},
     interactionMode: InteractionMode = InteractionMode.TAP,
     onInteractionModeChange: (InteractionMode) -> Unit = {},
-    onSendToEigoQuest: () -> Unit = {},
-    isSendingToEigoQuest: Boolean = false,
-    eiGoQuestSendResult: String? = null,
+    onSendToEigoJourney: () -> Unit = {},
+    isSendingToEigoJourney: Boolean = false,
+    eigoJourneySendResult: String? = null,
     onAddToStudy: () -> Unit = {},
     isAddingToStudy: Boolean = false,
     addToStudyResult: String? = null,
@@ -239,7 +239,7 @@ fun DifficultWordsPanel(
             }
         }
 
-        // Footer with Study + EigoQuest actions
+        // Footer with Study + EigoJourney actions
         if (words.isNotEmpty()) {
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Row(
@@ -249,11 +249,11 @@ fun DifficultWordsPanel(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                val statusText = addToStudyResult ?: eiGoQuestSendResult ?: "${words.size} words"
+                val statusText = addToStudyResult ?: eigoJourneySendResult ?: "${words.size} words"
                 Text(
                     text = statusText,
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (addToStudyResult != null || eiGoQuestSendResult != null)
+                    color = if (addToStudyResult != null || eigoJourneySendResult != null)
                         MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -284,15 +284,15 @@ fun DifficultWordsPanel(
                         Text("Study", style = MaterialTheme.typography.labelMedium)
                     }
                     Button(
-                        onClick = onSendToEigoQuest,
-                        enabled = !isSendingToEigoQuest && words.isNotEmpty(),
+                        onClick = onSendToEigoJourney,
+                        enabled = !isSendingToEigoJourney && words.isNotEmpty(),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                         ),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
                     ) {
-                        if (isSendingToEigoQuest) {
+                        if (isSendingToEigoJourney) {
                             androidx.compose.material3.CircularProgressIndicator(
                                 modifier = Modifier.size(14.dp),
                                 strokeWidth = 2.dp,
@@ -301,12 +301,12 @@ fun DifficultWordsPanel(
                         } else {
                             Icon(
                                 Icons.AutoMirrored.Filled.Send,
-                                contentDescription = "Send to EigoQuest",
+                                contentDescription = "Send to EigoJourney",
                                 modifier = Modifier.size(14.dp)
                             )
                         }
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("EigoQuest", style = MaterialTheme.typography.labelMedium)
+                        Text("EigoJourney", style = MaterialTheme.typography.labelMedium)
                     }
                 }
             }
