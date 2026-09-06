@@ -1,10 +1,10 @@
 # EigoSage TODO
 
 ## Active Tasks
-- [ ] [@solo] EigoJourney word export integration — found it was ALREADY built and wired (`sendToEigoQuest()` in CaptureFlowViewModel, live since commit f1fd6aa-era) but silently broken: target_app value was a stale pre-rename "eigoquest" that EigoJourney's worker (filters on target_app='eigojourney') never matched, so every "Send to EigoQuest" click succeeded (row inserted) but was never picked up. Renamed EigoQuestTransferRepository -> EigoJourneyTransferRepository, fixed target_app default, updated UI text/callbacks across 3 files. Compiles + full unit suite green. NOT live-device-verified (needs both apps on one real Android phone for the actual 15-min pull cycle — jworks:45 confirmed ready and watching for the pull once a real row lands — needs Jay's phone with both apps to actually trigger it) (2026-09-06)
 - [ ] [@solo] Route Gemini TTS pronunciation feature go/no-go to jdialogs:8 (TTS pilot owner) / jdialogs:0 — per jworks:9's steer (references S-181 JDialogs TTS pilot). jdialogs:8 was not reachable via SendMessage on first attempt 2026-09-06; retry when it's online (2026-09-06)
 
 ## Recently Completed
+- [x] [@solo] EigoJourney word export integration — found it was ALREADY built and wired (`sendToEigoQuest()` in CaptureFlowViewModel, live since commit f1fd6aa-era) but silently broken: target_app value was a stale pre-rename "eigoquest" that EigoJourney's worker (filters on target_app='eigojourney') never matched, so every "Send to EigoQuest" click succeeded (row inserted) but was never picked up. Fixed in v0.8.3 (commits ed0395b/ef89bca) — renamed EigoQuestTransferRepository -> EigoJourneyTransferRepository, fixed target_app default, updated UI text/callbacks across 3 files. Compiles + full unit suite green (173/173). Live-device verification still needed — see Backlog (2026-09-06)
 - [x] [@solo] Evaluate Gemini TTS for pronunciation features — REST-based (v1beta/interactions, different endpoint than existing clients), 30 voices incl. Kore/Puck already used for Live personas, no SSML/phoneme control (style-tag pacing only), $0.50-1.00/1M in + $10-20/1M out tokens depending on model. Reported to jworks:9 (2026-09-06)
 - [x] [@solo] Gemini Live agent prototype — WebSocket protocol layer (setup/audio/text messages, server event parsing), 13 unit tests, docs/gemini-development-log.md updated with confirmed wire format. Audio capture/playback + UI wiring still needs a device (2026-09-04)
 - [x] [@solo] Add 21 unit tests for OcrTextMerger — merge logic, empty inputs, word/line mismatch, isWord flag, metadata preservation (2026-06-21)
@@ -51,4 +51,5 @@
 
 ## Backlog
 - [backlog] S1-ES-2: OCR pipeline performance profiling (blocked: requires device testing, sprint P1)
+- [backlog] Verify EigoJourney export live on device (blocked: needs Jay's phone with both apps — jworks:45 confirmed ready and watching for the pull)
 - [backlog] Gemini Live: wire GeminiLiveClient to mic capture (AudioRecord 16kHz) + playback (AudioTrack 24kHz) + RECORD_AUDIO permission + DI/UI (blocked: requires device testing)
