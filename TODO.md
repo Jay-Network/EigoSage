@@ -1,7 +1,7 @@
 # EigoSage TODO
 
 ## Active Tasks
-- [ ] [@solo] Route Gemini TTS pronunciation feature go/no-go to jdialogs:8 (TTS pilot owner) / jdialogs:0 — per jworks:9's steer (references S-181 JDialogs TTS pilot). jdialogs:8 was not reachable via SendMessage on first attempt 2026-09-06; retry when it's online (2026-09-06)
+- [ ] [@solo] Route Gemini TTS pronunciation feature go/no-go — jdialogs:8 was offline 2026-09-06, retried 2026-09-11 (delivered) but turned out to be the wrong seat (website division, no record of S-181). Rerouted to jdialogs:0 (coordinator) to identify the real S-181 owner. Waiting on reply (2026-09-06)
 
 ## Recently Completed
 - [x] [@solo] EigoJourney word export integration — found it was ALREADY built and wired (`sendToEigoQuest()` in CaptureFlowViewModel, live since commit f1fd6aa-era) but silently broken: target_app value was a stale pre-rename "eigoquest" that EigoJourney's worker (filters on target_app='eigojourney') never matched, so every "Send to EigoQuest" click succeeded (row inserted) but was never picked up. Fixed in v0.8.3 (commits ed0395b/ef89bca) — renamed EigoQuestTransferRepository -> EigoJourneyTransferRepository, fixed target_app default, updated UI text/callbacks across 3 files. Compiles + full unit suite green (173/173). Live-device verification still needed — see Backlog (2026-09-06)
