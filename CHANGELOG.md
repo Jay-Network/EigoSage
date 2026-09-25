@@ -6,6 +6,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## v0.8.4 (2026-09-25) - Fix Release CI: Missing Keystore Directory
+
+### Fixed
+- **Release AAB build failing since 2026-07-23**: `.github/workflows/android-build.yml`'s "Decode keystore" step wrote to `keystore/eigosage-release.jks` without creating the `keystore/` directory first, failing every push-to-master release build at that step (`No such file or directory`). Debug build and unit tests were unaffected — only the release job was broken. Added `mkdir -p keystore` before the decode. Found and diagnosed by jworks:22/jworks-codex:22's CI ownership sweep; not a credential problem.
+
 ## v0.8.3 (2026-09-06) - Fix Broken "Send to EigoQuest" Word Export
 
 ### Fixed
