@@ -1,8 +1,9 @@
 # EigoSage TODO
 
+Completed task history: `/media/takuma/Data_ubuntu/agent-text/jworks-46/TODO-completed.md` (HDD, per the text-goes-to-HDD rule).
+
 ## Active Tasks
 - [ ] [@solo] Route Gemini TTS pronunciation feature go/no-go — jdialogs:8 was offline 2026-09-06, retried 2026-09-11 (delivered) but turned out to be the wrong seat (website division, no record of S-181). Rerouted to jdialogs:0 (coordinator) to identify the real S-181 owner. Waiting on reply (2026-09-06)
-- [ ] [@solo] Wire GeminiLiveClient to mic capture (AudioRecord 16kHz) + playback (AudioTrack 24kHz) + RECORD_AUDIO permission + DI/UI — picked 2026-10-09 per jworks:0's "work the next backlog item that needs no release signing." Writing the integration code now; device verification stays separately tracked (2026-09-04)
 
 ## Recently Completed
 - [x] [@solo] EigoJourney word export integration — found it was ALREADY built and wired (`sendToEigoQuest()` in CaptureFlowViewModel, live since commit f1fd6aa-era) but silently broken: target_app value was a stale pre-rename "eigoquest" that EigoJourney's worker (filters on target_app='eigojourney') never matched, so every "Send to EigoQuest" click succeeded (row inserted) but was never picked up. Fixed in v0.8.3 (commits ed0395b/ef89bca) — renamed EigoQuestTransferRepository -> EigoJourneyTransferRepository, fixed target_app default, updated UI text/callbacks across 3 files. Compiles + full unit suite green (173/173). Live-device verification still needed — see Backlog (2026-09-06)
@@ -53,4 +54,4 @@
 ## Backlog
 - [backlog] S1-ES-2: OCR pipeline performance profiling (blocked: requires device testing, sprint P1)
 - [backlog] Verify EigoJourney export live on device (blocked: needs Jay's phone with both apps — jworks:45 confirmed ready and watching for the pull)
-- [backlog] Gemini Live: wire GeminiLiveClient to mic capture (AudioRecord 16kHz) + playback (AudioTrack 24kHz) + RECORD_AUDIO permission + DI/UI (blocked: requires device testing)
+- [backlog] Gemini Live: verify mic/speaker voice round-trip on a real device (code shipped v0.9.0 — AudioPcmRecorder/AudioPcmPlayer/LiveSessionViewModel/LiveSessionScreen, reachable via the mic icon in the camera sidebar; blocked: requires device testing) [@solo] (2026-10-10)

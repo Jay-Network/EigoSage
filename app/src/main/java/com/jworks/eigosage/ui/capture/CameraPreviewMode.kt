@@ -36,6 +36,7 @@ import kotlin.math.roundToInt
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -73,6 +74,7 @@ fun CameraPreviewMode(
     onFeedbackClick: () -> Unit = {},
     onRewardsClick: () -> Unit = {},
     onStudyClick: () -> Unit = {},
+    onLiveClick: () -> Unit = {},
     cefrThreshold: CefrLevel = CefrLevel.B2,
     onCefrThresholdChange: (CefrLevel) -> Unit = {},
     coinBalance: Int? = null,
@@ -190,6 +192,20 @@ fun CameraPreviewMode(
                 Icon(
                     Icons.Default.School,
                     contentDescription = "Study",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            SmallFloatingActionButton(
+                onClick = onLiveClick,
+                containerColor = Color.Black.copy(alpha = 0.5f),
+                contentColor = Color.White
+            ) {
+                Icon(
+                    Icons.Default.Mic,
+                    contentDescription = "Live Voice Tutor",
                     modifier = Modifier.size(20.dp)
                 )
             }

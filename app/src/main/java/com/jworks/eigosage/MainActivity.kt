@@ -24,6 +24,7 @@ import com.jworks.eigosage.ui.feedback.FeedbackDialog
 import com.jworks.eigosage.ui.feedback.FeedbackViewModel
 import com.jworks.eigosage.ui.gallery.GalleryImportScreen
 import com.jworks.eigosage.ui.history.HistoryScreen
+import com.jworks.eigosage.ui.live.LiveSessionScreen
 import com.jworks.eigosage.ui.rewards.RewardsScreen
 import com.jworks.eigosage.ui.settings.SettingsScreen
 import com.jworks.eigosage.ui.study.StudyScreen
@@ -88,6 +89,7 @@ class MainActivity : ComponentActivity() {
                                     onFeedbackClick = { feedbackViewModel.openDialog() },
                                     onRewardsClick = { navController.navigate("rewards") },
                                     onStudyClick = { navController.navigate("study") },
+                                    onLiveClick = { navController.navigate("live") },
                                     resumeChatSessionId = chatSessionId
                                 )
                             }
@@ -124,6 +126,12 @@ class MainActivity : ComponentActivity() {
 
                             composable("study") {
                                 StudyScreen(
+                                    onBackClick = { navController.popBackStack() }
+                                )
+                            }
+
+                            composable("live") {
+                                LiveSessionScreen(
                                     onBackClick = { navController.popBackStack() }
                                 )
                             }

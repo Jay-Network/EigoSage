@@ -6,6 +6,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## v0.9.0 (2026-10-10) - Gemini Live Voice Tutor: Mic/Speaker + UI Wiring
+
+### Added
+- **`AudioPcmRecorder`**: captures microphone audio as base64-encoded 16kHz 16-bit PCM chunks matching `GeminiLiveClient`'s input format. Chunk sizing and base64 round-trip covered by 4 Robolectric unit tests.
+- **`AudioPcmPlayer`**: decodes and plays 24kHz 16-bit PCM audio returned by the Live API via `AudioTrack`.
+- **`LiveSessionViewModel` + `LiveSessionScreen`**: wires mic capture -> `GeminiLiveClient` -> speaker playback into a real screen (persona picker, live transcript, start/end session), reachable via a new mic icon in the camera sidebar (`composable("live")`).
+- `RECORD_AUDIO` permission added to the manifest, requested via the existing accompanist-permissions pattern.
+
+Full suite: 177 tests, 0 failures. **UNVERIFIED on a real device** — AudioRecord/AudioTrack behavior, the permission flow, and the actual voice round-trip have not been observed running; that remains tracked separately pending device access.
+
 ## v0.8.4 (2026-09-25) - Fix Release CI: Missing Keystore Directory
 
 ### Fixed

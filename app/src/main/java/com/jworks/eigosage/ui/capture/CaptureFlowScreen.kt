@@ -41,6 +41,7 @@ fun CaptureFlowScreen(
     onFeedbackClick: () -> Unit = {},
     onRewardsClick: () -> Unit = {},
     onStudyClick: () -> Unit = {},
+    onLiveClick: () -> Unit = {},
     resumeChatSessionId: String? = null,
     viewModel: CaptureFlowViewModel = hiltViewModel()
 ) {
@@ -61,6 +62,7 @@ fun CaptureFlowScreen(
             onFeedbackClick = onFeedbackClick,
             onRewardsClick = onRewardsClick,
             onStudyClick = onStudyClick,
+            onLiveClick = onLiveClick,
             viewModel = viewModel
         )
     } else {
@@ -108,6 +110,7 @@ private fun CaptureFlowContent(
     onFeedbackClick: () -> Unit,
     onRewardsClick: () -> Unit,
     onStudyClick: () -> Unit = {},
+    onLiveClick: () -> Unit = {},
     viewModel: CaptureFlowViewModel
 ) {
     val captureState by viewModel.captureState.collectAsState()
@@ -150,6 +153,7 @@ private fun CaptureFlowContent(
                     onFeedbackClick = onFeedbackClick,
                     onRewardsClick = onRewardsClick,
                     onStudyClick = onStudyClick,
+                    onLiveClick = onLiveClick,
                     cefrThreshold = cefrThreshold,
                     onCefrThresholdChange = { viewModel.setCefrThreshold(it) },
                     coinBalance = coinBalance,
