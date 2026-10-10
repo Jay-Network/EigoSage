@@ -2,6 +2,7 @@
 
 ## Active Tasks
 - [ ] [@solo] Route Gemini TTS pronunciation feature go/no-go — jdialogs:8 was offline 2026-09-06, retried 2026-09-11 (delivered) but turned out to be the wrong seat (website division, no record of S-181). Rerouted to jdialogs:0 (coordinator) to identify the real S-181 owner. Waiting on reply (2026-09-06)
+- [ ] [@solo] Wire GeminiLiveClient to mic capture (AudioRecord 16kHz) + playback (AudioTrack 24kHz) + RECORD_AUDIO permission + DI/UI — picked 2026-10-09 per jworks:0's "work the next backlog item that needs no release signing." Writing the integration code now; device verification stays separately tracked (2026-09-04)
 
 ## Recently Completed
 - [x] [@solo] EigoJourney word export integration — found it was ALREADY built and wired (`sendToEigoQuest()` in CaptureFlowViewModel, live since commit f1fd6aa-era) but silently broken: target_app value was a stale pre-rename "eigoquest" that EigoJourney's worker (filters on target_app='eigojourney') never matched, so every "Send to EigoQuest" click succeeded (row inserted) but was never picked up. Fixed in v0.8.3 (commits ed0395b/ef89bca) — renamed EigoQuestTransferRepository -> EigoJourneyTransferRepository, fixed target_app default, updated UI text/callbacks across 3 files. Compiles + full unit suite green (173/173). Live-device verification still needed — see Backlog (2026-09-06)

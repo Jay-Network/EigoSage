@@ -2,7 +2,7 @@
 
 ## Open
 
-(None yet)
+- **BUG-002: KEYSTORE_BASE64 GitHub secret appears corrupted — release signing still broken** — after BUG-001's fix (v0.8.4) let the release job reach the actual signing step, it now fails at `signReleaseBundle`: `Failed to read key from store ... Tag number over 30 is not supported` — an ASN.1 parse failure, not a wrong-password error. Verified via a live CI run (36184565358, 2026-09-25). A local untracked file `keystore/englishlens-release.jks` (old pre-rename name, 2770 bytes, sha256 `e7fb7254...`) parses as a structurally valid PKCS12 keystore on a modern JDK, suggesting the GitHub secret may hold a corrupted/stale encoding rather than this being a real format incompatibility — unconfirmed, did not attempt to open it with a password. Signing-key changes are explicitly out of act-first scope (irreversible if wrong). **PARKED per jworks:0 2026-10-09 ("leave CI signing broken while nothing ships," same call made for KanjiJourney's iOS cert) — do not re-raise to Jay until an EigoSage release is actually ready to ship; then one agent-msg to jayhub:0 naming the exact file/options.** [@solo] (2026-09-25)
 
 ## Resolved
 
