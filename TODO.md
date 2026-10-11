@@ -53,5 +53,5 @@ Completed task history: `/media/takuma/Data_ubuntu/agent-text/jworks-46/TODO-com
 
 ## Backlog
 - [backlog] S1-ES-2: OCR pipeline performance profiling (blocked: requires device testing, sprint P1)
-- [backlog] Verify EigoJourney export live on device (blocked: needs Jay's phone with both apps — jworks:45 confirmed ready and watching for the pull)
+- [backlog] Verify EigoJourney export end-to-end — jayhub:0 ruled 2026-10-10 this no longer needs Jay's phone (emulator instead, jworks:45 setting one up). Real root cause found 2026-10-11: J Coin backend was NXDOMAIN (BUG-003), not just the target_app rename. Fixed: migrated to j-coin.jworks-ai.com + eq-word-transfer edge function. Blocked: the edge function is still in jayhub:110 review, not live yet [@solo] (2026-10-11)
 - [backlog] Gemini Live: verify mic/speaker voice round-trip on a real device (code shipped v0.9.0 — AudioPcmRecorder/AudioPcmPlayer/LiveSessionViewModel/LiveSessionScreen, reachable via the mic icon in the camera sidebar; blocked: requires device testing) [@solo] (2026-10-10)

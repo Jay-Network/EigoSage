@@ -6,6 +6,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## v0.9.1 (2026-10-11) - Fix EigoJourney Export's Real Root Cause: NXDOMAIN J Coin Backend
+
+### Fixed
+- **BUG-003**: `JCoinModule.JCOIN_SUPABASE_URL` pointed at the old J Coin Supabase project, which had gone NXDOMAIN — so the v0.8.3 `target_app` fix could never actually have worked; no write could reach any server. Migrated to `https://j-coin.jworks-ai.com` (anon key hash-verified before use). Table REST is closed on the new backend, so `EigoJourneyTransferRepository.sendWords()` was rewritten to call the new `eq-word-transfer` edge function instead of a direct upsert. Found by jworks:45. Full suite 177/177 green. **UNVERIFIED end-to-end** — the edge function is still in review and not live yet.
+
 ## v0.9.0 (2026-10-10) - Gemini Live Voice Tutor: Mic/Speaker + UI Wiring
 
 ### Added
