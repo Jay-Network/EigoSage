@@ -6,6 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## v0.9.2 (2026-10-16) - Offline OCR + Release Signing Secrets
+
+### Fixed
+- **OCR returned 0 words on devices without Google Play Services**: switched from the unbundled `play-services-mlkit-text-recognition` (model downloaded at runtime by Play Services — "Waiting for the text optional module to be downloaded") to the bundled `com.google.mlkit:text-recognition` (same API, model shipped in the APK, ~+4 MB). Removed the now-unused `com.google.mlkit.vision.DEPENDENCIES` manifest hint. Found by jworks:45 on the Play-less API 35 test emulator.
+- **Release signing secrets configured** (BUG-002): the repo never had `KEYSTORE_BASE64`/`KEYSTORE_PASSWORD`/`KEY_ALIAS`/`KEY_PASSWORD`/`GCP_WEB_CLIENT_ID`. Per Jay's desk answer ("Re-upload from local file"), jayhub:67 set all five from the local keystore and `local.properties`. This push is the first release-job run with them.
+
 ## v0.9.1 (2026-10-11) - Fix EigoJourney Export's Real Root Cause: NXDOMAIN J Coin Backend
 
 ### Fixed

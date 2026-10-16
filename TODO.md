@@ -3,6 +3,7 @@
 Completed task history: `/media/takuma/Data_ubuntu/agent-text/jworks-46/TODO-completed.md` (HDD, per the text-goes-to-HDD rule).
 
 ## Active Tasks
+- [ ] Release signing per Jay's desk answer nj-jworks-46-yHsPcDeVub ("Re-upload from local file") — repo-level secrets lack all 5 signing secrets (KEYSTORE_BASE64/KEYSTORE_PASSWORD/KEY_ALIAS/KEY_PASSWORD/GCP_WEB_CLIENT_ID); secret writes delegated to jayhub:50 (dlg-99733919c60d43c29bb8b0ce). Then trigger android-build.yml and verify the release job signs [@helpful-hand:jayhub:50] (2026-10-16)
 - [ ] [@solo] Route Gemini TTS pronunciation feature go/no-go — jdialogs:8 was offline 2026-09-06, retried 2026-09-11 (delivered) but turned out to be the wrong seat (website division, no record of S-181). Rerouted to jdialogs:0 (coordinator) to identify the real S-181 owner. Waiting on reply (2026-09-06)
 
 ## Recently Completed

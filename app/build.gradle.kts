@@ -129,7 +129,9 @@ dependencies {
     implementation("androidx.camera:camera-view:1.5.3")
 
     // ML Kit - Text Recognition (English/Latin - default)
-    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.1")
+    // Bundled model: works offline and on devices without Play Services (the unbundled
+    // play-services variant returned 0 words until Play Services downloaded the module).
+    implementation("com.google.mlkit:text-recognition:16.0.1")
 
     // Room
     implementation("androidx.room:room-runtime:2.6.1")
