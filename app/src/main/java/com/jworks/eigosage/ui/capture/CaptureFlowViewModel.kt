@@ -792,10 +792,15 @@ class CaptureFlowViewModel @Inject constructor(
                 word.cefr != null && word.cefr.ordinalIndex >= threshold.ordinalIndex
             }.distinctBy { it.text }
 
-            if (difficult.isNotEmpty() && _panelState.value is PanelState.Idle) {
+            val current = _panelState.value
+            if (difficult.isNotEmpty() && current is PanelState.Idle) {
                 _panelState.value = PanelState.DifficultWordsList(difficult, threshold)
                 // J Coin: first CEFR scan milestone
                 fireFirstCefrScanMilestone()
+            } else if (current is PanelState.DifficultWordsList) {
+                // Re-enrichment after Gemini OCR correction: refresh the open
+                // panel so it matches what Send/Study will actually use.
+                _panelState.value = PanelState.DifficultWordsList(difficult, threshold)
             }
         }
     }

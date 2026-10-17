@@ -6,6 +6,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## v0.9.3 (2026-10-17) - Difficult Words Panel Matches What Gets Sent
+
+### Fixed
+- **Difficult Words panel went stale after Gemini OCR correction** (BUG-004): `enrichWords()` only drew the panel when it was Idle, so when the Gemini correction re-enriched the words ~2 s later, the open panel kept the first (ML Kit) list while Send to EigoJourney / Add to Study read the fresh one. Seen by jworks:45 on the emulator: panel showed 7 (B2+), Send carried 9. The open panel now refreshes on re-enrichment.
+
 ## v0.9.2 (2026-10-16) - Offline OCR + Release Signing Secrets
 
 ### Fixed

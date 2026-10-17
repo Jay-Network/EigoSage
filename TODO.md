@@ -3,7 +3,7 @@
 Completed task history: `/media/takuma/Data_ubuntu/agent-text/jworks-46/TODO-completed.md` (HDD, per the text-goes-to-HDD rule).
 
 ## Active Tasks
-(none)
+- [ ] BUG-005: J Coin earn returns 401 "Invalid app key" because `APP_KEY_EIGOSAGE` is unset on the J Coin server (no app change needed). jayhub-mac:110 sets it after Jay's go; my part is handing over the key file when asked, then re-running earn/balance (dlg-93f1dd2610bb438885cc387c) [@solo] (2026-10-17)
 
 ## Recently Completed
 - [x] [@solo] EigoJourney word export integration — found it was ALREADY built and wired (`sendToEigoQuest()` in CaptureFlowViewModel, live since commit f1fd6aa-era) but silently broken: target_app value was a stale pre-rename "eigoquest" that EigoJourney's worker (filters on target_app='eigojourney') never matched, so every "Send to EigoQuest" click succeeded (row inserted) but was never picked up. Fixed in v0.8.3 (commits ed0395b/ef89bca) — renamed EigoQuestTransferRepository -> EigoJourneyTransferRepository, fixed target_app default, updated UI text/callbacks across 3 files. Compiles + full unit suite green (173/173). Live-device verification still needed — see Backlog (2026-09-06)
@@ -53,5 +53,4 @@ Completed task history: `/media/takuma/Data_ubuntu/agent-text/jworks-46/TODO-com
 
 ## Backlog
 - [backlog] S1-ES-2: OCR pipeline performance profiling (blocked: requires device testing, sprint P1)
-- [backlog] Verify EigoJourney export end-to-end — real root cause (BUG-003, NXDOMAIN J Coin backend) fixed in v0.9.1 (commit e1c8705); eq-word-transfer went live 2026-10-11 00:32. jworks:45 owns the remaining step: building the debug APK and running the emulator send/pull cycle, will report the result [@solo] (2026-10-11)
 - [backlog] Gemini Live: verify mic/speaker voice round-trip on a real device (code shipped v0.9.0 — AudioPcmRecorder/AudioPcmPlayer/LiveSessionViewModel/LiveSessionScreen, reachable via the mic icon in the camera sidebar; blocked: requires device testing) [@solo] (2026-10-10)
